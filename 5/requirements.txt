@@ -1,0 +1,7 @@
+python-telegram-bot==21.6
+aiohttp>=3.9
+
+# Live OTP forwarding  (Admin -> Features -> Live OTP forwarding)
+# The bot runs fine without these; the feature just stays off.
+pyrogram>=2.0.106
+tgcrypto>=1.2.5

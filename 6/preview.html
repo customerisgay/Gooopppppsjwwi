@@ -1,0 +1,2764 @@
+<!DOCTYPE html>
+<html lang="en" data-design="midnight">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<title>Zoro TG Store — Store Mini App (Design 6)</title>
+<style>
+:root{
+  --bg:#0f1113; --bg2:#16191c; --card:#16191c; --card2:#1d2125;
+  --line:#262b30; --tx:#e9edf1; --tx2:#828b95; --acc:#7dd3fc; --acc2:#7dd3fc;
+  --ok:#4ade80; --warn:#fbbf24; --bad:#f87171;
+  --r:12px; --rs:10px; --btnh:44px; --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; --fhead:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --shadow:0 6px 18px rgba(0,0,0,.35); --pillgrad:linear-gradient(135deg,#e9edf1,#9fb3c8); --btnbg:#cfd8e0;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:var(--font);font-size:15px;line-height:1.45;min-height:100vh;overflow-x:hidden;padding-top:32px;}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;}
+::-webkit-scrollbar{width:0;height:0}
+#shell{position:relative;z-index:1;max-width:520px;margin:0 auto;min-height:100vh;padding:0 16px 98px}
+.hidden{display:none!important}
+
+#topbar{position:sticky;top:32px;z-index:40;display:flex;align-items:center;gap:10px;padding:14px 0 12px;background:linear-gradient(var(--bg) 72%,transparent)}
+.logo{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto;background:var(--pillgrad);color:#0f1113;font-weight:800;font-size:.9rem;letter-spacing:-.03em;}
+.brand{min-width:0;flex:1}
+.brand b{display:block;font-family:var(--fhead);font-size:.95rem;font-weight:700;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand span{display:block;font-size:.66rem;color:var(--tx2);letter-spacing:.06em;text-transform:uppercase}
+.balchip{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 13px;border-radius:12px;background:var(--card);border:1px solid var(--line);color:var(--tx);font-family:var(--font);font-weight:700;font-size:.85rem;white-space:nowrap;cursor:pointer;}
+.balchip .plus{display:grid;place-items:center;width:20px;height:20px;border-radius:7px;background:var(--pillgrad);color:#0f1113;font-weight:800;font-size:.8rem;line-height:1}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
+.card.tight{padding:13px}
+.card h3{margin:0 0 3px;font-family:var(--fhead);font-size:.92rem;font-weight:700;letter-spacing:-.02em}
+.card .sub{margin:0;color:var(--tx2);font-size:.78rem}
+.sec{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 2px 10px}
+.sec h2{margin:0;font-family:var(--fhead);font-size:.82rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--tx2)}
+.sec a{font-size:.75rem;color:var(--acc);text-decoration:none;font-weight:600;white-space:nowrap;cursor:pointer}
+
+/* one button system — text can never overflow */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:var(--btnh);min-width:0;max-width:100%;padding:0 16px;border:0;cursor:pointer;border-radius:10px;font-family:var(--font);font-size:.83rem;font-weight:700;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1;background:var(--pillgrad);color:#0f1113;transition:transform .15s,filter .15s;}
+.btn:active{transform:scale(.97)}
+.btn:hover{filter:brightness(1.06)}
+.btn svg{width:16px;height:16px;flex:0 0 auto}
+.btn.block{display:flex;width:100%}
+.btn.sm{height:36px;padding:0 12px;font-size:.75rem;border-radius:8px}
+.btn.xs{height:30px;padding:0 10px;font-size:.7rem;border-radius:8px}
+.btn.ghost{background:transparent;color:var(--tx);border:1px solid var(--line)}
+.btn.soft{background:var(--card2);color:var(--tx);border:1px solid var(--line)}
+.btn.bad{background:transparent;color:var(--bad);border:1px solid var(--bad)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btnrow{display:flex;gap:8px}
+.btnrow>.btn{flex:1 1 0;min-width:0}
+
+.pill{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:99px;font-size:.66rem;font-weight:700;letter-spacing:.04em;background:var(--card2);color:var(--tx2);border:1px solid var(--line);white-space:nowrap}
+.pill.on{color:var(--ok);border-color:rgba(74,222,128,.4)}
+.pill.hot{color:var(--warn);border-color:rgba(251,191,36,.4)}
+.pill.off{color:var(--bad);border-color:rgba(248,113,113,.4)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.kv{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.82rem;color:var(--tx2)}
+.kv:last-child{border-bottom:0}
+.kv b{color:var(--tx);font-weight:700;text-align:right;overflow-wrap:anywhere}
+.flag{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:1.35rem;flex:0 0 auto;background:var(--card2);border:1px solid var(--line)}
+.flag svg{width:18px;height:18px}
+
+.hero{position:relative;overflow:hidden;border-radius:14px;padding:22px 18px;margin:4px 0 14px;border:1px solid var(--line);background:linear-gradient(150deg,#1b2025,#121518)}
+.hero .kick{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);font-weight:800}
+.hero h1{margin:8px 0 6px;font-family:var(--fhead);font-size:1.75rem;line-height:1.05;letter-spacing:-.02em;font-weight:700}
+.hero p{margin:0 0 14px;font-size:.8rem;color:var(--tx2);max-width:280px}
+.hero .btnrow{max-width:330px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:9px;cursor:pointer;}
+.pcard .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pcard .nm{font-weight:700;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcard .meta{font-size:.68rem;color:var(--tx2)}
+.pcard .price{font-family:var(--fhead);font-size:1.25rem;font-weight:700;letter-spacing:-.02em}
+.pcard .price s{font-size:.72rem;color:var(--tx2);font-weight:400;margin-right:6px}
+.rows{display:flex;flex-direction:column;gap:9px}
+.row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 13px;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s;}
+.row:active{transform:scale(.99)}
+.row .mid{flex:1;min-width:0}
+.row .mid b{display:block;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .mid small{display:block;font-size:.7rem;color:var(--tx2);margin-top:2px}
+.row .rt{text-align:right;flex:0 0 auto}
+.row .rt .p{font-weight:800;font-size:.95rem;white-space:nowrap}
+.row .rt .p s{font-weight:400;font-size:.72rem;color:var(--tx2);margin-right:5px}
+.carou{display:flex;gap:10px;overflow-x:auto;padding:2px 0 6px;margin:0 -16px 6px;padding-left:16px;padding-right:16px;scroll-snap-type:x mandatory}
+.carou>*{flex:0 0 172px;scroll-snap-align:start}
+
+nav#tabs{position:fixed;z-index:60;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);max-width:calc(100vw - 20px)}
+nav#tabs .dock{display:flex;gap:2px;padding:7px 8px;border-radius:0px;background:#16191c;border:1px solid var(--line);box-shadow:0 6px 22px rgba(0,0,0,.45)}
+nav#tabs button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:58px;height:48px;padding:0 6px;border:0;background:transparent;cursor:pointer;color:var(--tx2);font-family:var(--font);font-size:.6rem;font-weight:700;letter-spacing:.03em;border-radius:9px;transition:color .2s,background .2s;white-space:nowrap}
+nav#tabs button svg{width:19px;height:19px}
+nav#tabs button.on{color:#0f1113;background:var(--pillgrad)}
+
+.subnav{display:flex;gap:7px;overflow-x:auto;padding:2px 0 12px;margin:0 -2px}
+.subnav button{flex:0 0 auto;height:34px;padding:0 13px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--tx2);font-family:var(--font);font-size:.74rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.subnav button.on{background:var(--pillgrad);color:#0f1113;border-color:transparent}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--rs);padding:13px;box-shadow:var(--shadow)}
+.kpi small{display:block;font-size:.64rem;color:var(--tx2);letter-spacing:.1em;text-transform:uppercase}
+.kpi b{display:block;margin-top:5px;font-family:var(--fhead);font-size:1.35rem;font-weight:700;letter-spacing:-.02em}
+.inp,select.inp{width:100%;height:var(--btnh);padding:0 13px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font-family:var(--font);font-size:.83rem;outline:none;-webkit-appearance:none;appearance:none}
+select.inp{background-image:none}
+.inp::placeholder{color:var(--tx2);opacity:.75}
+.inp:focus{border-color:var(--acc)}
+textarea.inp{height:auto;min-height:40px;padding:10px 13px;line-height:1.5;resize:vertical}
+.cmsrow.hide{display:none}
+.iconchip{position:relative;height:34px;min-width:34px;padding:0 9px;border-radius:99px;border:1px solid var(--line);background:var(--card2);color:var(--tx);display:inline-grid;place-items:center;cursor:pointer}
+.iconchip svg{width:17px;height:17px}
+.iconchip i{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:99px;background:var(--acc);color:#0f1113;font-size:.6rem;font-style:normal;font-weight:800;display:grid;place-items:center}
+.stars{display:inline-flex;gap:1px;vertical-align:middle}
+.stars svg{width:11px;height:11px;color:#f5a623}
+.stars b{font-size:.66rem;color:var(--tx2);font-weight:700;margin-left:3px}
+.heart{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:99px;display:grid;place-items:center;border:1px solid var(--line);background:var(--card2);cursor:pointer;z-index:2}
+.heart svg{width:13px;height:13px;color:var(--tx2)}
+.heart.on{background:var(--acc);border-color:transparent}
+.heart.on svg{color:#0f1113}
+.qty{display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.qty button{width:38px;height:38px;border:0;background:var(--card2);color:var(--tx);font-size:1rem;font-weight:800;cursor:pointer}
+.qty b{min-width:38px;text-align:center;font-size:.85rem}
+.tl{margin:10px 0 0;padding-left:16px;border-left:2px solid var(--line)}
+.tl div{position:relative;padding:0 0 11px 10px;font-size:.74rem;color:var(--tx2)}
+.tl div:last-child{padding-bottom:0}
+.tl div::before{content:"";position:absolute;left:-21px;top:4px;width:8px;height:8px;border-radius:99px;background:var(--line)}
+.tl div.ok::before{background:var(--ok)}
+.tl div.ok b{color:var(--tx)}
+.tl small{display:block;font-size:.66rem;opacity:.8}
+.fcard{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+.fcard:last-child{border-bottom:0}
+.fcard .t{flex:1;min-width:0}
+.fcard .t b{font-size:.81rem;display:block}
+.fcard .t small{display:block;font-size:.69rem;color:var(--tx2);line-height:1.45;margin-top:2px}
+.frow.hide,.fgrp.hide{display:none}
+.bars{display:flex;align-items:flex-end;gap:5px;height:86px;margin-top:12px}
+.bars i{flex:1;border-radius:6px 6px 3px 3px;background:var(--pillgrad);display:block}
+.funnel div{display:flex;align-items:center;gap:9px;margin-top:9px;font-size:.74rem}
+.funnel i{height:26px;border-radius:7px;background:var(--pillgrad);display:block}
+.feedline{display:flex;align-items:center;gap:9px;font-size:.73rem;color:var(--tx2);padding:7px 0;border-bottom:1px solid var(--line)}
+.feedline:last-child{border-bottom:0}
+.feedline b{color:var(--tx)}
+.lb{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.lb:last-child{border-bottom:0}
+.lb .rk{width:24px;height:24px;border-radius:99px;display:grid;place-items:center;font-size:.7rem;font-weight:800;background:var(--card2);color:var(--tx2)}
+.lb .rk.g{background:var(--pillgrad);color:#0f1113}
+.cmsgrp.hide{display:none}
+.cmsrow label b{color:var(--acc);font-weight:700}
+.timerbar{height:5px;border-radius:99px;background:var(--card2);overflow:hidden;margin:10px 0 2px}
+.timerbar i{display:block;height:100%;background:var(--pillgrad);transition:width 1s linear}
+.timerbar.low i{background:var(--bad,#e5484d)}
+.field{margin-bottom:9px}
+.field label{display:block;font-size:.68rem;color:var(--tx2);letter-spacing:.09em;text-transform:uppercase;margin:0 0 5px 2px;font-weight:700}
+.swap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.swap:last-child{border-bottom:0}
+.swap .t{font-size:.82rem;font-weight:600;min-width:0}
+.swap .t small{display:block;font-weight:400;font-size:.7rem;color:var(--tx2)}
+.tg{width:44px;height:26px;border-radius:99px;background:var(--card2);border:1px solid var(--line);position:relative;cursor:pointer;flex:0 0 auto}
+.tg:after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--tx2);transition:.22s}
+.tg.on{background:var(--pillgrad);border-color:transparent}
+.tg.on:after{left:21px;background:#0f1113}
+.tg.sm{width:36px;height:21px}
+.tg.sm:after{width:14px;height:14px;top:2.5px}
+.tg.sm.on:after{left:18px}
+.star{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;border:1px solid var(--line);background:var(--card2);color:var(--tx2);cursor:pointer;flex:0 0 auto}
+.star.on{background:var(--pillgrad);color:#0f1113;border-color:transparent}
+.star svg{width:14px;height:14px}
+
+#sheet{position:fixed;inset:0;z-index:90;display:none}
+#sheet.open{display:block}
+#sheet .bg{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px)}
+#sheet .panel{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:520px;background:var(--bg2);border:1px solid var(--line);border-bottom:0;border-radius:24px 24px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom));animation:up .28s cubic-bezier(.2,.9,.3,1);max-height:92vh;overflow:auto}
+@keyframes up{from{transform:translate(-50%,100%)}to{transform:translate(-50%,0)}}
+#sheet .grab{width:38px;height:4px;border-radius:9px;background:var(--line);margin:0 auto 14px}
+.otpbox{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.6rem;letter-spacing:.35em;text-align:center;padding:16px;border-radius:var(--rs);background:var(--card2);border:1px dashed var(--line);margin:10px 0}
+.qr{width:150px;height:150px;margin:6px auto 10px;border-radius:var(--rs);background:var(--card2);border:1px solid var(--line);display:grid;place-items:center;color:var(--tx2);font-size:.65rem;letter-spacing:.1em;text-align:center}
+.steps{margin:12px 0 4px}
+.step{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:.79rem;color:var(--tx2)}
+.step i{width:22px;height:22px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-style:normal;font-size:.65rem;font-weight:800;flex:0 0 auto}
+.step.on{color:var(--tx)}
+.step.on i{background:var(--pillgrad);color:#0f1113;border-color:transparent}
+.step.run i{border-color:var(--acc);color:var(--acc);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:120;background:var(--bg2);border:1px solid var(--line);color:var(--tx);padding:11px 16px;border-radius:99px;font-size:.78rem;font-weight:600;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
+
+/* preview chrome — mockup only, own strip so it never overlaps the UI */
+#sw{position:fixed;top:0;left:0;right:0;height:32px;z-index:200;display:flex;align-items:center;justify-content:center;gap:5px;
+  background:rgba(22,25,28,.9);border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}
+#sw em{font-style:normal;font-size:.56rem;letter-spacing:.18em;text-transform:uppercase;color:var(--tx2);margin-right:4px}
+#sw button{height:22px;padding:0 12px;border-radius:99px;border:0;cursor:pointer;background:transparent;color:var(--tx2);font-family:var(--font);font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+#sw button.on{background:var(--pillgrad);color:#0f1113}
+
+/* ═══════════════ AURORA UI KIT — ported components ═══════════════ */
+@property --ga{syntax:"<angle>";initial-value:0deg;inherits:false}
+@property --gp{syntax:"<percentage>";initial-value:5%;inherits:false}
+@property --go{syntax:"<angle>";initial-value:0deg;inherits:false}
+
+/* 23 · Shiny CTA — conic border + dot mask + inner shimmer + breathe */
+.btn.cta{--dur:3.2s;--hl:#ffffff;position:relative;isolation:isolate;border:1px solid transparent;
+  background:linear-gradient(var(--btnbg),var(--btnbg)) padding-box,
+    conic-gradient(from calc(var(--ga) - var(--go)),transparent,var(--hl) var(--gp),
+      #fff calc(var(--gp)*2),var(--hl) calc(var(--gp)*3),transparent calc(var(--gp)*4)) border-box;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+  transition:--go .8s cubic-bezier(.25,1,.5,1),--gp .8s cubic-bezier(.25,1,.5,1),transform .15s;
+  animation:ga var(--dur) linear infinite}
+.btn.cta:before,.btn.cta:after{content:"";position:absolute;left:50%;top:50%;translate:-50% -50%;z-index:-1;pointer-events:none}
+.btn.cta:before{width:calc(100% - 6px);height:calc(100% - 6px);border-radius:inherit;opacity:.35;
+  background:radial-gradient(circle at 2px 2px,#fff .5px,transparent 0) padding-box;background-size:4px 4px;
+  -webkit-mask-image:conic-gradient(from calc(var(--ga) + 45deg),#000,transparent 10% 90%,#000);
+  mask-image:conic-gradient(from calc(var(--ga) + 45deg),#000,transparent 10% 90%,#000)}
+.btn.cta:after{width:100%;aspect-ratio:1;opacity:.55;
+  background:linear-gradient(-50deg,transparent,var(--hl),transparent);
+  -webkit-mask-image:radial-gradient(circle at bottom,transparent 40%,#000);
+  mask-image:radial-gradient(circle at bottom,transparent 40%,#000);
+  animation:shimmer var(--dur) linear infinite}
+.btn.cta:hover{--gp:22%;--go:95deg}
+.btn.cta:active{translate:0 1px}
+@keyframes ga{to{--ga:360deg}}
+@keyframes shimmer{to{rotate:360deg}}
+
+/* 22 · Liquid glass */
+.btn.glass,.glasscard{position:relative;background:color-mix(in srgb,var(--card2) 70%,transparent);
+  border:1px solid color-mix(in srgb,#fff 16%,var(--line));color:var(--tx);
+  backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);
+  box-shadow:inset 1px 1px 1px -.5px rgba(255,255,255,.55),inset -1px -1px 1px -.5px rgba(255,255,255,.3),
+    inset 0 0 8px 6px rgba(255,255,255,.07),0 2px 10px rgba(0,0,0,.12)}
+.btn.glass:after{content:"";position:absolute;inset:1px 1px auto;height:42%;border-radius:inherit;
+  background:linear-gradient(180deg,rgba(255,255,255,.34),transparent);pointer-events:none}
+.btn.glass:hover{transform:scale(1.03)}
+
+/* press ripple (kit dock/button feel) */
+.rip{position:absolute;border-radius:50%;transform:translate(-50%,-50%) scale(0);pointer-events:none;
+  background:radial-gradient(circle,rgba(255,255,255,.55),transparent 70%);animation:rip .55s ease-out forwards}
+@keyframes rip{to{transform:translate(-50%,-50%) scale(1);opacity:0}}
+
+/* 24 · Animated banner + 17 · logo cloud marquee */
+.banner{position:relative;overflow:hidden;border-radius:10px;border:1px solid var(--line);
+  background:var(--card);margin:2px 0 12px;height:38px;display:flex;align-items:center;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.banner .track{display:flex;gap:30px;white-space:nowrap;animation:marq 26s linear infinite;will-change:transform}
+.banner:hover .track{animation-play-state:paused}
+.banner span{font-size:.7rem;color:var(--tx2);font-weight:600;letter-spacing:.03em;display:inline-flex;align-items:center;gap:6px}
+.banner span b{color:var(--acc)}
+.banner span svg{width:13px;height:13px;color:var(--acc)}
+@keyframes marq{to{transform:translateX(-50%)}}
+.cloud{display:flex;gap:26px;overflow:hidden;padding:4px 0 2px;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.cloud .t{display:flex;gap:26px;animation:marq 30s linear infinite}
+.cloud i{font-style:normal;font-size:.68rem;font-weight:800;letter-spacing:.14em;color:var(--tx2);opacity:.55;white-space:nowrap}
+
+/* 07 · Gradient tracing */
+.trace{display:block;width:100%;height:10px;margin:-2px 0 8px;overflow:visible}
+.trace .base{stroke:var(--line);stroke-width:1.4}
+.trace .lead{stroke-width:1.8;stroke-linecap:round}
+.sec h2{position:relative}
+
+/* 01 + 13 · Dot loader */
+.dotgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;width:70px}
+.dotgrid i{width:100%;aspect-ratio:1;border-radius:2px;background:color-mix(in srgb,var(--tx) 14%,transparent);transition:background .12s,transform .12s}
+.dotgrid i.act{background:var(--acc);transform:scale(1.12)}
+.dots{display:inline-flex;gap:4px;align-items:center}
+.dots i{width:5px;height:5px;border-radius:50%;background:var(--acc);animation:bounce 1s infinite ease-in-out}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-5px);opacity:1}}
+
+/* splash */
+#splash{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  background:var(--bg);transition:opacity .5s ease,visibility .5s}
+#splash.gone{opacity:0;visibility:hidden}
+#splash .mark{width:58px;height:58px;border-radius:12px;display:grid;place-items:center;background:var(--pillgrad);
+  color:#0f1113;font-weight:800;font-size:1.1rem;animation:markin .7s cubic-bezier(.2,1.4,.4,1) both}
+#splash h4{margin:0;font-family:var(--fhead);font-size:1rem;font-weight:700;letter-spacing:-.02em;
+  animation:fadeup .6s .15s both}
+#splash small{color:var(--tx2);font-size:.65rem;letter-spacing:.22em;text-transform:uppercase;animation:fadeup .6s .25s both}
+@keyframes markin{from{opacity:0;transform:scale(.6) rotate(-12deg)}to{opacity:1;transform:none}}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* 08 · Kinetic grid canvas */
+#kg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.32}
+
+/* staggered reveal is driven by the Web Animations API (cannot clash with theme CSS) */
+
+/* 02 + 25 · Dock with spring pill */
+nav#tabs .dock{position:relative}
+nav#tabs .dpill{position:absolute;left:0;top:0;z-index:0;border-radius:9px;background:var(--pillgrad);
+  box-shadow:0 6px 18px color-mix(in srgb,var(--acc) 35%,transparent);pointer-events:none}
+nav#tabs button{position:relative;z-index:1;will-change:transform;
+  transition:color .26s cubic-bezier(.22,1,.36,1),transform .18s cubic-bezier(.3,1.5,.5,1)}
+nav#tabs button.on{background:transparent;color:#0f1113}
+nav#tabs .dpill{opacity:0}
+nav#tabs .dpill.ready{opacity:1}
+
+/* 14 · V-tabs sliding indicator */
+.subnav{position:relative}
+.subnav .vpill{position:absolute;left:0;top:0;z-index:0;border-radius:8px;background:var(--pillgrad);transition:none;pointer-events:none}
+.subnav button{position:relative;z-index:1}
+.subnav button.on{background:transparent;color:#0f1113;border-color:transparent}
+
+/* 15 · Animated profile card — tilt + glare */
+.tilt{transform-style:preserve-3d;transition:transform .35s cubic-bezier(.22,1,.36,1);will-change:transform}
+.tilt .glare{position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;
+  background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.22),transparent 60%)}
+.tilt:hover .glare{opacity:1}
+.shinecard{position:relative;overflow:hidden}
+.shinecard:before{content:"";position:absolute;top:-60%;left:-30%;width:55%;height:220%;transform:rotate(18deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);animation:cardshine 5.5s ease-in-out infinite;pointer-events:none}
+@keyframes cardshine{0%,70%{left:-40%}100%{left:120%}}
+
+/* 05 · Hold action button */
+.hold{position:relative;overflow:hidden}
+.hold .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(255,255,255,.25);transition:width .05s linear}
+.hold.done{animation:pop .4s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{50%{transform:scale(1.04)}}
+
+/* 11 · Morphing search */
+.msearch{display:flex;align-items:center;gap:8px;margin:0 0 10px}
+.msearch .fieldwrap{flex:1;min-width:0;position:relative;height:40px}
+.msearch input{width:100%;height:40px;padding:0 13px 0 36px;border-radius:99px;border:1px solid var(--line);
+  background:var(--card);color:var(--tx);font-family:var(--font);font-size:.8rem;outline:none;
+  transition:box-shadow .3s cubic-bezier(.22,1,.36,1),border-color .3s}
+.msearch input:focus{border-color:var(--acc);box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 16%,transparent)}
+.msearch svg{position:absolute;left:12px;top:11px;width:17px;height:17px;color:var(--tx2);transition:color .25s}
+.msearch input:focus+svg,.msearch .fieldwrap:focus-within svg{color:var(--acc)}
+.chiprow{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px}
+.chiprow button{flex:0 0 auto;height:30px;padding:0 12px;border-radius:99px;border:1px solid var(--line);
+  background:var(--card2);color:var(--tx2);font-family:var(--font);font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap;
+  transition:transform .2s cubic-bezier(.3,1.5,.5,1),background .2s,color .2s}
+.chiprow button.on{background:var(--pillgrad);color:#0f1113;border-color:transparent;transform:scale(1.04)}
+
+/* skeletons (13 · loader) */
+.sk{position:relative;overflow:hidden;background:var(--card2);border-radius:var(--rs);height:74px;margin-bottom:9px}
+.sk:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--tx) 10%,transparent),transparent);
+  transform:translateX(-100%);animation:shim 1.15s infinite}
+@keyframes shim{to{transform:translateX(100%)}}
+
+/* 19 · Feature strip */
+.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.feat{background:var(--card);border:1px solid var(--line);border-radius:var(--rs);padding:11px 9px;text-align:center;
+  transition:transform .25s cubic-bezier(.22,1,.36,1)}
+.feat:hover{transform:translateY(-3px)}
+.feat svg{width:17px;height:17px;color:var(--acc)}
+.feat b{display:block;font-size:.68rem;margin-top:5px}
+.feat small{display:block;font-size:.6rem;color:var(--tx2)}
+
+/* 03 · Works wheel — rotating deal dial */
+.wheel{position:relative;height:118px;margin:2px 0 12px;overflow:hidden;border-radius:var(--r);
+  border:1px solid var(--line);background:var(--card)}
+.wheel .ring{position:absolute;right:-52px;top:50%;width:176px;height:176px;margin-top:-88px;border-radius:50%;
+  border:1px dashed var(--line);animation:spin 26s linear infinite}
+.wheel .ring b{position:absolute;left:50%;top:50%;width:50px;height:24px;margin:-12px 0 0 -25px;border-radius:99px;
+  display:grid;place-items:center;font-size:.62rem;font-weight:800;background:var(--card2);border:1px solid var(--line);color:var(--tx2)}
+.wheel .cap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 16px;
+  background:linear-gradient(90deg,var(--card) 0 58%,transparent)}
+.wheel .cap>*{max-width:62%}
+.wheel .cap em{font-style:normal;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--acc);font-weight:800}
+.wheel .cap b{font-family:var(--fhead);font-size:1.05rem;font-weight:700}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* success burst */
+#fx{position:fixed;inset:0;z-index:150;display:none;place-items:center;pointer-events:none}
+#fx.on{display:grid}
+#fx .ring{width:82px;height:82px;border-radius:50%;border:2px solid var(--ok);display:grid;place-items:center;
+  color:var(--ok);animation:burst .75s cubic-bezier(.2,1.3,.4,1)}
+#fx .ring svg{width:34px;height:34px}
+#fx .wave{position:absolute;width:82px;height:82px;border-radius:50%;border:2px solid var(--ok);animation:wave .9s ease-out forwards}
+@keyframes burst{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes wave{to{transform:scale(3.4);opacity:0}}
+
+/* number ticker */
+.tick{font-variant-numeric:tabular-nums}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+nav#tabs{left:0;right:0;bottom:0;transform:none;max-width:100%}nav#tabs .dock{border-radius:0;border-left:0;border-right:0;border-bottom:0;padding:6px 6px calc(6px + env(safe-area-inset-bottom));justify-content:space-around}nav#tabs button{flex:1}
+.kpi{position:relative}.kpi:after{content:'';position:absolute;left:13px;right:13px;bottom:10px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--acc),transparent)}.hero h1{font-size:1.55rem}.card{border-color:#23282d}
+</style>
+</head>
+<body>
+
+<canvas id="kg"></canvas>
+<div id="splash"><div class="mark" id="spmark">ZT</div><div class="dotgrid" id="dg"></div>
+  <h4 id="spname">Zoro TG Store</h4><small id="sptag">Quiet, fast, precise</small></div>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <filter id="lg" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.05 0.05" numOctaves="1" seed="1" result="t"/>
+    <feGaussianBlur in="t" stdDeviation="2" result="b"/>
+    <feDisplacementMap in="SourceGraphic" in2="b" scale="70" xChannelSelector="R" yChannelSelector="B"/>
+  </filter></defs></svg>
+<div id="fx"><div class="wave"></div><div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div></div>
+<div id="sw"><em>Preview</em>
+  <button data-sw="app" class="on">Store</button>
+  <button data-sw="admin">Admin</button>
+</div>
+
+<div id="view-app">
+<div id="shell">
+  <header id="topbar">
+    <div class="logo">ZT</div>
+    <div class="brand"><b id="bname">Zoro TG Store</b><span id="btag">Quiet, fast, precise</span></div>
+    <button class="iconchip hidden" id="cartchip" title="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><i id="cartn">0</i></button>
+    <button class="balchip" data-go="wallet"><span class="plus">+</span>₹<span id="bal" class="tick">248.50</span></button>
+  </header>
+  <main id="stage"></main>
+</div>
+<nav id="tabs"><div class="dock"><span class="dpill" id="dpill"></span>
+  <button data-tab="shop" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span data-nav="shop">Shop</span></button>
+  <button data-tab="orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg><span data-nav="orders">Orders</span></button>
+  <button data-tab="earn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg><span data-nav="earn">Earn</span></button>
+  <button data-tab="wallet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h15a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5"/><path d="M18 12h.01"/></svg><span data-nav="wallet">Wallet</span></button>
+  <button data-tab="you"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span data-nav="you">You</span></button>
+</div></nav>
+</div>
+
+<div id="view-admin" class="hidden"><div id="shell">
+  <header id="topbar">
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></div>
+    <div class="brand"><b>Admin Console</b><span id="abname">Zoro TG Store</span></div>
+    <span class="pill on"><i class="dot"></i>Live</span>
+  </header>
+  <div class="subnav" id="asub"><span class="vpill" id="vpill"></span>
+    <button data-a="dash" class="on">Dashboard</button>
+    <button data-a="channels">Channels</button>
+    <button data-a="logs">Logs</button>
+    <button data-a="pay">Auto-Pay</button>
+    <button data-a="content">Content</button>
+    <button data-a="features">Features</button>
+    <button data-a="market">Marketing</button>
+    <button data-a="analytics">Analytics</button>
+    <button data-a="security">Security</button>
+    <button data-a="stock">Stock</button>
+    <button data-a="orders">Orders</button>
+    <button data-a="users">Users</button>
+    <button data-a="settings">Settings</button>
+  </div>
+  <main id="astage"></main>
+</div></div>
+
+<div id="sheet"><div class="bg" data-close></div><div class="panel" id="panel"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── live-mode state, declared first so nothing can read it too early ── */
+var LIVE=false,LOCKED=false,ME={admin:false,owner:false,perms:{}};
+var TG=window.Telegram&&window.Telegram.WebApp||null;
+function readInitData(){
+  try{if(TG&&TG.initData&&TG.initData.length)return TG.initData;}catch(e){}
+  /* Telegram also puts it in the URL, so the app still works if the SDK is blocked */
+  try{
+    const m=/[#&?]tgWebAppData=([^&]*)/.exec(location.hash||"");
+    if(m&&m[1])return decodeURIComponent(m[1]);
+  }catch(e){}
+  try{
+    const q=new URLSearchParams(location.search);
+    const v=q.get("tgWebAppData");
+    if(v)return v;
+  }catch(e){}
+  try{
+    const saved=sessionStorage.getItem("tgInit");
+    if(saved)return saved;
+  }catch(e){}
+  return "";
+}
+function initials(name){
+  const w=(name||"").trim().split(/\s+/).filter(Boolean);
+  if(!w.length)return "ST";
+  return ((w[0][0]||"")+(w.length>1?(w[1][0]||""):(w[0][1]||""))).toUpperCase();
+}
+function paintBrand(name,tag){
+  if(name){
+    const n=document.getElementById("spname"); if(n)n.textContent=name;
+    const m=document.getElementById("spmark"); if(m)m.textContent=initials(name);
+    const b=document.getElementById("bname"); if(b)b.textContent=name;
+    const ab=document.getElementById("abname"); if(ab)ab.textContent=name;
+    document.title=name;
+  }
+  if(tag){
+    const t=document.getElementById("sptag"); if(t)t.textContent=tag;
+    const bt=document.getElementById("btag"); if(bt)bt.textContent=tag;
+  }
+}
+try{
+  const cn=localStorage.getItem("storeName"), ct=localStorage.getItem("storeTag");
+  if(cn||ct)paintBrand(cn,ct);
+}catch(e){}
+var INIT=readInitData();
+try{if(INIT)sessionStorage.setItem("tgInit",INIT);}catch(e){}
+function readAppKey(){
+  try{
+    const q=new URLSearchParams(location.search);
+    if(q.get("k"))return q.get("k");
+    const m=/[#&?]k=([^&]*)/.exec(location.hash||"");
+    if(m&&m[1])return decodeURIComponent(m[1]);
+    return sessionStorage.getItem("appKey")||"";
+  }catch(e){return "";}
+}
+var APPKEY=readAppKey();
+try{if(APPKEY)sessionStorage.setItem("appKey",APPKEY);}catch(e){}
+/* demo data only — no tokens, no UPI ID, no Gmail credentials */
+let CFG={name:"Zoro TG Store",tag:"Quiet, fast, precise",cur:"₹"};
+/* ── Editable copy — every string below is editable in Admin ▸ Content ── */
+const CMS={
+ storeName:"Zoro TG Store", storeTag:"Quiet, fast, precise",
+ emptyTitle:"Restocking", emptyBody:"Everything just sold out. Fresh accounts land here shortly — turn on an alert and you will hear first.",
+ tick1:"<b>Instant delivery</b> on every country", tick2:"Top-ups <b>confirmed automatically</b>",
+ tick3:"Failed login? <b>Auto refund</b>", tick4:"Daily check-in <b>₹0.40</b>",
+ heroKick:"Stock feed", heroH1:"Less noise.<br>More delivery.",
+ heroSub:"Instant delivery, OTP in-app, wallet top-ups verified automatically. {n} countries live.",
+ heroBtn1:"Browse Stock", heroBtn2:"Add Funds",
+ feat1:"~8s", feat1s:"delivery", feat2:"Auto", feat2s:"refunds", feat3:"UPI", feat3s:"auto-verify",
+ flashPill:"Flash −20%", flashText:"Ends in", flashBtn:"View",
+ wheelKick:"Rotating deals", wheelTitle:"Up to 28% off", wheelWords:"INSTANT, AUTO-VERIFY, REFUNDS, 24×7",
+ shopHead:"In Stock", shopSort:"Sort", searchPh:"Search country or code…", alertsBtn:"Alerts",
+ walKick:"Balance", walSub:"Pay by UPI — tap Verify after paying and your wallet is credited in seconds.",
+ walAdd:"Add Funds", payTitle:"Payment Details", paySub:"Admin sets the UPI handle — nothing is hard-coded in the app.",
+ payPrefix:"PAY", payWindow:"5",
+ sheetTitle:"Add", sheetSub:"Pay the exact amount, then tap Verify Payment. The request expires in {m} minutes.",
+ payBtn:"Pay Now", verifyBtn:"Verify Payment", utrBtn:"Not detected? Submit UTR",
+ step1:"Payment request created", step2:"Pay the exact amount in any UPI app",
+ step3:"Tap Verify — we confirm your payment", step4:"Wallet credited",
+ msgChecking:"Checking your payment…", msgOk:"Verified — wallet credited",
+ msgNone:"No payment found yet. Pay first, then tap Verify.", msgExpired:"Request expired — create a new one.",
+ navShop:"Shop", navOrders:"Orders", navEarn:"Earn", navWallet:"Wallet", navYou:"You"
+};
+const CMS0=Object.assign({},CMS);
+const CMSMETA=[
+ ["Store header",[["storeName","Store name"],["storeTag","Tagline"]]],
+ ["Scrolling ticker",[["tick1","Ticker 1"],["tick2","Ticker 2"],["tick3","Ticker 3"],["tick4","Ticker 4"]]],
+ ["Hero section",[["heroKick","Small label above title"],["heroH1","Big title"],["heroSub","Paragraph under the title"],["heroBtn1","Left button"],["heroBtn2","Right button"]]],
+ ["Feature badges",[["feat1","Badge 1 value"],["feat1s","Badge 1 caption"],["feat2","Badge 2 value"],["feat2s","Badge 2 caption"],["feat3","Badge 3 value"],["feat3s","Badge 3 caption"]]],
+ ["Flash sale strip",[["flashPill","Pill text"],["flashText","Countdown label"],["flashBtn","Button"]]],
+ ["Rotating deals card",[["wheelKick","Small label"],["wheelTitle","Headline"],["wheelWords","Marquee words (comma separated)"]]],
+ ["Shop list",[["shopHead","Section heading"],["shopSort","Sort link"],["searchPh","Search placeholder"],["alertsBtn","Alerts button"]]],
+ ["Wallet screen",[["walKick","Label above balance"],["walSub","Balance description"],["walAdd","Add funds button"],["payTitle","Payment card title"],["paySub","Payment card description"]]],
+ ["Payment sheet",[["sheetTitle","Sheet title prefix"],["sheetSub","Sheet description ({m} = minutes)"],["payBtn","Pay button"],["verifyBtn","Verify button"],["utrBtn","Manual fallback button"],["payPrefix","Reference prefix"],["payWindow","Payment window (minutes)"]]],
+ ["Payment steps",[["step1","Step 1"],["step2","Step 2"],["step3","Step 3"],["step4","Step 4"]]],
+ ["Payment messages",[["msgChecking","While checking"],["msgOk","Verified"],["msgNone","Nothing found"],["msgExpired","Expired"]]],
+ ["Bottom navigation",[["navShop","Tab 1"],["navOrders","Tab 2"],["navEarn","Tab 3"],["navWallet","Tab 4"],["navYou","Tab 5"]]]
+];
+/* ══ FEATURE FLAGS — every feature below is off-able; when off nothing renders ══ */
+const FGROUPS=[
+ ["Payments & wallet",[
+  ["crypto","Crypto / USDT top-up","Accept USDT-TRC20, BTC etc. with auto-confirm from the explorer."],
+  ["upiRotate","Multiple UPI IDs + rotation","Rotate handles per payment or auto-switch when one is limited."],
+  ["autoRefund","Auto-refund to wallet","Dead account inside the warranty window is refunded without support."],
+  ["splitPay","Split payment","Pay part from balance and the rest by UPI in one flow."],
+  ["ledger","Wallet ledger statement","Full credit/debit history with running balance and CSV export."],
+  ["depLimits","Min / max deposit rules","Global or per-user caps on a single top-up."],
+  ["depBonus","Deposit bonus tiers","Add ₹500 get 5% extra — configurable slabs, auto-applied."],
+  ["wrongAmt","Wrong-amount handling","Credit whatever was actually paid and flag the mismatch."]]],
+ ["Catalog & selling",[
+  ["cart","Shopping cart / bulk buy","Mix countries in one checkout, one confirmation, one debit."],
+  ["bulkDisc","Bulk purchase discount","Automatic price break at 5 / 10 / 25 units."],
+  ["wishlist","Wishlist / favourites","Save countries and rebuy in one tap."],
+  ["dynPrice","Dynamic pricing","Price moves with stock level, age tier or time of day."],
+  ["flashSale","Flash sale","Timed discount with a live countdown on the storefront."],
+  ["coupons","Coupon codes","Percentage off at checkout with limits and expiry."],
+  ["variants","Account variants","Spam-block, 2FA, username, mail — filterable and priced apart."],
+  ["healthCheck","Stock health check","Session is validated live before it is sold."]]],
+ ["Orders & after-sale",[
+  ["timeline","Order status timeline","Pending, delivered, OTP received, closed — visible to both sides."],
+  ["warranty","Replacement / warranty","Report a problem inside X hours for an auto-replacement."],
+  ["redownload","Re-download details","Fetch a past order's details again, rate-limited."],
+  ["dispute","Dispute flow","Reason picker plus evidence instead of free-text tickets."],
+  ["sessionFile","Session file delivery","Send .session / JSON as a document with a self-destruct timer."],
+  ["receipts","Order receipts","Auto-generated invoice per purchase."]]],
+ ["Trust & social proof",[
+  ["reviews","Reviews & star ratings","Buyer rates after delivery; averages show on every country."],
+  ["salesFeed","Live sales feed","Recent sales shown in-app and auto-posted to your channel."],
+  ["leaderboard","Leaderboard","Top buyers and referrers of the week, with a prize."],
+  ["buyerBadge","Verified buyer badge","Badge and perks after N completed orders."]]],
+ ["Growth & retention",[
+  ["refL2","Multi-level referral","Level 1 and level 2 commission instead of a flat rate."],
+  ["refDash","Referral dashboard","Who joined, who deposited and what each invite earned."],
+  ["streak","Check-in streak rewards","Escalating daily reward that resets when broken."],
+  ["loyalty","Loyalty points","Earn per ₹ spent, redeem for balance or a free account."],
+  ["winback","Re-engagement DMs","Auto message users inactive for 7 / 30 days."],
+  ["abandonRemind","Abandoned-deposit reminder","Nudge before an unfinished payment expires."],
+  ["schedBroadcast","Scheduled & segmented broadcasts","Queue for later, target buyers, non-buyers or big spenders."]]],
+ ["Admin & operations",[
+  ["adminRoles","Admin roles","Owner / manager / support with separate permissions."],
+  ["auditLog","Audit log","Every admin action logged with timestamp and undo."],
+  ["contentEditor","In-bot content editor","Edit every message and button without touching code."],
+  ["autoBackup","Scheduled auto-backup","Database to a private channel every N hours, one-tap restore."],
+  ["bulkUpload","Bulk upload with validation","Validate each session, report dead or duplicate, import the rest."],
+  ["dupDetect","Duplicate detection","Reject a phone or session already in the database."],
+  ["lowStock","Low-stock alerts","Ping when a country drops below its own threshold."],
+  ["sellHours","Selling-hours schedule","Auto-hide countries outside their selling window."],
+  ["sandbox","Test mode / sandbox","Run the whole flow on fake money before going live."],
+  ["i18n","Multi-language","Per-user Hindi / English switch across every string."]]],
+ ["Security & anti-abuse",[
+  ["rateLimit","Rate limiting","Per-user action limits so nobody can hammer the bot."],
+  ["multiAcc","Multi-account detection","Catch referral farming and flag suspicious signups."],
+  ["velocity","Purchase velocity alerts","Flag abnormally fast buying — typical of stolen top-ups."],
+  ["admin2fa","Admin 2FA","PIN or TOTP before balance edits, broadcasts or wipes."],
+  ["autoBan","Auto-ban rules","Ban on chargeback, fake UTR or repeated failed verification."],
+  ["blacklist","Blacklist","Permanently block user IDs, phone numbers and UPI references."],
+  ["encrypt","Session encryption at rest","A leaked database file is useless without the key."]]],
+ ["Analytics",[
+  ["revChart","Revenue dashboard","Daily, weekly and monthly revenue and profit as charts."],
+  ["funnel","Conversion funnel","See where users drop off between joining and buying."],
+  ["profitRep","Per-country profit","Cost vs sale price vs volume for every country."],
+  ["clv","Customer lifetime value","Spend, frequency and churn risk per user."],
+  ["digest","Daily digest","End-of-day summary pushed to the admin chat."]]],
+ ["Quality of life",[
+  ["inlineSearch","Inline search","Type @yourbot india in any chat to find and buy."],
+  ["slashCmds","Slash commands menu","/start /buy /balance /orders registered with Telegram."],
+  ["stockCounter","Live stock counter","Auto-updating pinned post and in-app live count."],
+  ["onboarding","Onboarding tour","Three-step walkthrough for first-time users."],
+  ["notifPrefs","Notification preferences","Users pick which alerts they receive."],
+  ["pushNotif","Mini app push","Mini app actions notify the user through the bot."]]]
+];
+const FEAT={};
+FGROUPS.forEach(([g,rows])=>rows.forEach(r=>FEAT[r[0]]=true));
+const FEAT0=Object.assign({},FEAT);
+const G=(k,h)=>FEAT[k]?h:"";
+const anyF=(...ks)=>ks.some(k=>FEAT[k]);
+let CART=[],WISH=[];
+let REVIEWS={India:[4.8,412],Indonesia:[4.6,180],Brazil:[4.7,96],Nigeria:[4.4,54],Vietnam:[4.9,233],Philippines:[4.5,71]};
+let FEED=[["🇮🇳","India","₹35","2 min ago"],["🇻🇳","Vietnam","₹26","6 min ago"],["🇧🇷","Brazil","₹44","11 min ago"]];
+let ADM={
+  kpi:{rev:4820,orders:61,users:1284,auto:38},
+  bars:[42,61,38,74,55,88,67],
+  stock:[],orders:[],disputes:[],users:[],admins:[],channels:[],
+  logs:{master:true,channels:[],events:[]},coupons:[],audit:[],reviews:[],deposits:[],logfeed:[],
+  pay:{upi:"",payee:"",gmail:"",gmail_set:false,window:5,prefix:"PAY",min:10,max:20000,autodep:0,pending:0},
+  security:{rate:20,velocity:5,blacklist:0,banned:0},
+  market:{flash:20,flash_on:false,ref1:5,ref2:1,goal:0,month:0},
+  settings:{store:"",tagline:"",support:"",price:35,daily:0.4,app:"",maintenance:false,sandbox:false},
+  analytics:{funnel:{users:0,dep:0,buy:0},country:[],stock_total:0,sold_total:0}
+};
+function admNum(n){return (n||0).toLocaleString("en-IN");}
+let EARN={streak:4,daily:0.40,claimed:false,points:340,pointsWorth:34,invites:12,
+  l1:52.40,l2:12.40,earned:64.80,link:"t.me/your_bot?start=ref_demo",
+  recent:[["user_1041","deposited ₹200","+₹2.00"],["user_1038","joined","—"],["user_1022","deposited ₹500","+₹5.00"]],
+  leaders:[["1","@rahul","₹4,820"],["2","@aman","₹3,140"],["3","@you","₹1,980"]],
+  tasks:[["Join the main channel","₹1.00",1],["Place your first order","₹2.00",1],["Invite 3 friends","₹5.00",0]]};
+function stars(c){const r=(REVIEWS[c]||[4.7,20])[0],n=(REVIEWS[c]||[4.7,20])[1];
+  return `<span class="stars">${[1,2,3,4,5].map(i=>ic(i<=Math.round(r)?"star":"star")).join("")}<b>${r} (${n})</b></span>`;}
+function applyFeatures(){
+  const cc=document.getElementById("cartchip");
+  if(cc){cc.classList.toggle("hidden",!FEAT.cart);document.getElementById("cartn").textContent=CART.length;}
+  const earn=anyF("streak","refDash","refL2","loyalty","leaderboard","winback");
+  const eb=document.querySelector('#tabs button[data-tab="earn"]');
+  if(eb){eb.classList.toggle("hidden",!earn);
+    if(!earn&&TAB==="earn"){TAB="shop";document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x.dataset.tab==="shop"));render();}}
+  const amap={market:anyF("coupons","flashSale","schedBroadcast","winback","salesFeed","leaderboard","loyalty","refDash","refL2","abandonRemind"),
+    analytics:anyF("revChart","funnel","profitRep","clv","digest"),
+    security:anyF("rateLimit","multiAcc","velocity","admin2fa","autoBan","blacklist","encrypt"),
+    content:FEAT.contentEditor};
+  Object.entries(amap).forEach(([k,v])=>{const b=document.querySelector('#asub button[data-a="'+k+'"]');
+    if(b){b.classList.toggle("hidden",!v);
+      if(!v&&ATAB===k){ATAB="dash";document.querySelectorAll("#asub button").forEach(x=>x.classList.toggle("on",x.dataset.a==="dash"));renderAdmin();}}});
+  if(window.__dockPlace)requestAnimationFrame(()=>window.__dockPlace(true));
+  if(window.__vtabPlace)requestAnimationFrame(()=>window.__vtabPlace(true));
+}
+function applyCMS(){
+ const g=id=>document.getElementById(id);
+ if(g("bname"))g("bname").textContent=CMS.storeName;
+ if(g("abname"))g("abname").textContent=CMS.storeName;
+ if(CMS.storeName){CFG.name=CMS.storeName;}
+ if(CMS.storeTag)CFG.tag=CMS.storeTag;
+ paintBrand(CMS.storeName,CMS.storeTag);
+ try{
+   if(CMS.storeName)localStorage.setItem("storeName",CMS.storeName);
+   if(CMS.storeTag)localStorage.setItem("storeTag",CMS.storeTag);
+ }catch(e){}
+ if(g("btag"))g("btag").textContent=CMS.storeTag;
+ document.querySelectorAll("[data-nav]").forEach(n=>{
+   const k="nav"+n.dataset.nav[0].toUpperCase()+n.dataset.nav.slice(1);
+   if(CMS[k])n.textContent=CMS[k];});
+ if(window.__dockPlace)requestAnimationFrame(()=>window.__dockPlace(true));
+}
+let BAL=248.50;
+const STOCK=[
+ {c:"India",f:"🇮🇳",code:"+91",price:35,was:49,qty:128,hot:1},
+ {c:"Indonesia",f:"🇮🇩",code:"+62",price:28,was:0,qty:64},
+ {c:"Brazil",f:"🇧🇷",code:"+55",price:44,was:59,qty:22},
+ {c:"Nigeria",f:"🇳🇬",code:"+234",price:31,was:0,qty:0},
+ {c:"Vietnam",f:"🇻🇳",code:"+84",price:26,was:0,qty:91},
+ {c:"Philippines",f:"🇵🇭",code:"+63",price:38,was:0,qty:7}
+];
+const ORDERS=[
+ {id:"ORD-7741",c:"India",f:"🇮🇳",num:"+91 •••• ••32",st:"Delivered",when:"2 min ago",price:35},
+ {id:"ORD-7728",c:"Vietnam",f:"🇻🇳",num:"+84 •••• ••07",st:"Delivered",when:"Yesterday",price:26},
+ {id:"ORD-7702",c:"Brazil",f:"🇧🇷",num:"+55 •••• ••88",st:"Refunded",when:"3 days ago",price:44}
+];
+let CHANNELS=[
+ {id:1,name:"Main Channel",handle:"@your_main_channel",req:true,on:true,members:"12.4K"},
+ {id:2,name:"Backup Channel",handle:"@your_backup",req:true,on:true,members:"3.1K"},
+ {id:3,name:"Discussion Group",handle:"@your_group",req:false,on:true,members:"5.8K"}
+];
+let LOGCH=[
+ {id:1,name:"Main Logs",handle:"@your_logs",primary:true,on:true},
+ {id:2,name:"Payment Logs",handle:"@your_pay_logs",primary:false,on:true},
+ {id:3,name:"Error Logs",handle:"-100xxxxxxxxxx",primary:false,on:false}
+];
+let LOGS_MASTER=true;
+let EVENTS=[
+ {k:"New user joined",on:false,ch:1},{k:"Deposit / payment",on:true,ch:2},
+ {k:"Purchase",on:true,ch:1},{k:"OTP requested",on:false,ch:1},
+ {k:"Stock added",on:true,ch:1},{k:"Admin action",on:true,ch:1},
+ {k:"Errors & warnings",on:true,ch:3}
+];
+const TX=[{t:"Deposit",a:"+₹200.00",w:"Today, 14:02"},{t:"Purchase · India",a:"-₹35.00",w:"Today, 14:05"},
+ {t:"Daily check-in",a:"+₹0.40",w:"Today, 09:11"},{t:"Referral bonus",a:"+₹3.20",w:"Yesterday"}];
+
+let FILTERED=STOCK.slice(), QUERY="", CHIP="all";
+const EMPTY='<div class="card" style="text-align:center"><p class="sub">Nothing matches that search.</p></div>';
+const IC={bag:"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z\"/><path d=\"M3 6h18\"/><path d=\"M16 10a4 4 0 0 1-8 0\"/></svg>",box:"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z\"/><path d=\"m3.3 7 8.7 5 8.7-5\"/><path d=\"M12 22V12\"/></svg>",zap:"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M13 2 3 14h9l-1 8 10-12h-9z\"/></svg>",wallet:"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h15a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5\"/><path d=\"M18 12h.01\"/></svg>",user:"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/></svg>",shield:"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/></svg>",check:"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg>",send:"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m22 2-7 20-4-9-9-4Z\"/><path d=\"M22 2 11 13\"/></svg>",plus:"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg>",copy:"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\"/><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"/></svg>",chev:"<svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg>",fire:"<svg viewBox=\"0 0 24 24\" width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 2c1 4 5 5 5 9a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-8Z\"/></svg>",down:"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 5v14M19 12l-7 7-7-7\"/></svg>",up:"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 19V5M5 12l7-7 7 7\"/></svg>",search:"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m21 21-4.3-4.3\"/></svg>",star:"<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linejoin=\"round\"><path d=\"m12 3 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.2l5.9-.9z\"/></svg>"};
+const ic=n=>IC[n]||"";
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const money=n=>CFG.cur+Number(n).toFixed(2);
+
+let tt;const toast=m=>{const e=document.getElementById("toast");e.textContent=m;e.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>e.classList.remove("show"),1900)};
+document.addEventListener("click",e=>{const b=e.target.closest("[data-toast]");if(b)toast(b.dataset.toast)});
+const sheet=h=>{
+  document.getElementById("panel").innerHTML='<div class="grab"></div>'+h;
+  document.getElementById("sheet").classList.add("open");
+  /* controls inside a sheet are created after binding, so bind them now */
+  try{ if(typeof bindCommon==="function") bindCommon(); }catch(e){}
+  document.querySelectorAll("#sheet [data-close]").forEach(x=>x.onclick=closeSheet);
+};
+const closeSheet=()=>document.getElementById("sheet").classList.remove("open");
+document.addEventListener("click",e=>{if(e.target.closest("[data-close]"))closeSheet()});
+
+document.querySelectorAll("#sw button").forEach(b=>b.onclick=()=>{
+  if(b.dataset.sw==="admin"&&!adminAllowed()){toast("Admins only");return;}
+  document.querySelectorAll("#sw button").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+  ["app","admin"].forEach(v=>document.getElementById("view-"+v).classList.toggle("hidden",v!==b.dataset.sw));
+  document.getElementById("tabs").style.display=b.dataset.sw==="app"?"":"none";window.scrollTo(0,0);
+  requestAnimationFrame(()=>{if(window.__dockPlace)window.__dockPlace(true);
+    if(window.__vtabPlace)window.__vtabPlace(true);});});
+
+let TAB="shop";
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#tabs button").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+  TAB=b.dataset.tab;render();window.scrollTo(0,0);if(window.__dockPlace)requestAnimationFrame(window.__dockPlace);});
+document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(!g)return;
+  const t=g.dataset.go;document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x.dataset.tab===t));
+  TAB=t;render();window.scrollTo(0,0);});
+
+function render(){const st=document.getElementById("stage");
+  if(LOCKED){paintLocked();return;}
+  st.innerHTML='<div class="sk"></div><div class="sk"></div><div class="sk" style="height:140px"></div>';
+  setTimeout(()=>{if(LOCKED){paintLocked();return;}
+    st.innerHTML=({shop:vShop,orders:vOrders,earn:vEarn,wallet:vWallet,you:vYou})[TAB]();
+    bindStage();revealStage(st);bindTilt();},RM?0:160);}
+
+function vShop(){
+  const live=STOCK.filter(s=>s.qty>0).length, units=STOCK.reduce((a,b)=>a+b.qty,0);
+  if(LIVE&&!STOCK.length){
+    return `<div class="card" style="margin:18px 0;text-align:center;padding:26px">
+      <h3 style="margin:0 0 6px">${esc(CMS.emptyTitle||"Restocking")}</h3>
+      <p class="sub" style="margin:0">${esc(CMS.emptyBody||"Everything just sold out. Fresh accounts land here shortly \u2014 turn on an alert and you will hear first.")}</p>
+      <button class="btn block" style="margin-top:14px" data-act="alerts">Notify me</button></div>`;
+  }
+  return `
+  <div class="banner"><div class="track">
+    ${[1,2].map(()=>`<span>${ic("zap")}${CMS.tick1}</span><span>${ic("wallet")}${CMS.tick2}</span>
+    <span>${ic("shield")}${CMS.tick3}</span><span>${ic("star")}${CMS.tick4}</span>`).join("")}
+  </div></div>
+  ${G("onboarding",`<div class="card tight" id="tourcard" style="display:flex;align-items:center;gap:10px">
+    <div class="flag">${ic("zap")}</div>
+    <div style="flex:1;min-width:0"><b style="font-size:.8rem">New here? 3-step tour</b>
+      <br><small style="color:var(--tx2);font-size:.69rem">Top up, pick a country, get the OTP in-app.</small></div>
+    <button class="btn xs" id="tourgo">Start</button>
+    <button class="btn xs ghost" id="tourskip">Skip</button></div>`)}
+  <section class="hero">
+    <div class="kick">${CMS.heroKick}</div>
+    <h1>${CMS.heroH1}</h1>
+    <p>${CMS.heroSub.replace("{n}",live)}</p>
+    <div class="btnrow">
+      <button class="btn cta" data-scroll="shoplist">${ic("bag")} ${CMS.heroBtn1}</button>
+      <button class="btn glass" data-go="wallet">${CMS.heroBtn2}</button>
+    </div>
+  </section>
+  <svg class="trace" viewBox="0 0 320 10" preserveAspectRatio="none"><path class="base" d="M0,5 L320,5"/>
+    <path class="lead" d="M0,5 L320,5" stroke="url(#tg1)"/>
+    <defs><linearGradient id="tg1" gradientUnits="userSpaceOnUse" x1="-160" y1="0" x2="0" y2="0">
+      <stop stop-color="var(--acc)" stop-opacity="0"/><stop offset=".5" stop-color="var(--acc)"/>
+      <stop offset="1" stop-color="var(--acc2)" stop-opacity="0"/>
+      <animate attributeName="x1" values="-160;320" dur="2.2s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="0;480" dur="2.2s" repeatCount="indefinite"/>
+    </linearGradient></defs></svg>
+  <div class="feats">
+    <div class="feat">${ic("zap")}<b>${CMS.feat1}</b><small>${CMS.feat1s}</small></div>
+    <div class="feat">${ic("shield")}<b>${CMS.feat2}</b><small>${CMS.feat2s}</small></div>
+    <div class="feat">${ic("wallet")}<b>${CMS.feat3}</b><small>${CMS.feat3s}</small></div>
+  </div>
+  ${G("stockCounter",`<div class="card tight" style="display:flex;align-items:center;gap:10px">
+    <span class="pill on"><i class="dot"></i>Live</span>
+    <div style="flex:1;min-width:0;font-size:.76rem;color:var(--tx2)"><b style="color:var(--tx)">${units}</b> accounts in stock across <b style="color:var(--tx)">${live}</b> countries</div>
+    <button class="btn xs soft" data-act="channel">Channel</button></div>`)}
+  ${G("flashSale",`<div class="card tight" style="display:flex;align-items:center;gap:10px">
+    <span class="pill hot">${ic("fire")} ${CMS.flashPill}</span>
+    <div style="flex:1;min-width:0;font-size:.76rem;color:var(--tx2)">${CMS.flashText} <b style="color:var(--tx)" id="cd">14:52</b></div>
+    <button class="btn xs" data-act="flash">${CMS.flashBtn}</button></div>`)}
+  <div class="wheel"><div class="ring">${STOCK.map((s,i)=>`<b style="transform:rotate(${i*60}deg) translate(70px) rotate(-${i*60}deg)">${s.code}</b>`).join("")}</div>
+    <div class="cap"><em>${CMS.wheelKick}</em><b>${CMS.wheelTitle}</b>
+      <div class="cloud" style="margin-top:6px"><div class="t">${[1,2].map(()=>CMS.wheelWords.split(",").map(w=>`<i>${w.trim()}</i>`).join("")).join("")}</div></div></div></div>
+  ${G("salesFeed",`<div class="card"><h3>Just sold</h3><p class="sub">Live feed — also auto-posted to your channel.</p>
+    ${FEED.length?FEED.map(([f,c,a,w])=>`<div class="feedline"><span>${f}</span><b>${c}</b> sold for <b>${a}</b><span style="margin-left:auto">${w}</span></div>`).join("")
+      :'<p class="sub" style="margin:0">No sales yet today.</p>'}</div>`)}
+  <div class="sec" id="shoplist"><h2>${CMS.shopHead}</h2><a data-act="sort">${CMS.shopSort}</a></div>
+  <div class="msearch"><div class="fieldwrap">${ic("search")}<input id="q" placeholder="${CMS.searchPh}"></div>
+    <button class="btn sm soft" data-act="alerts">${CMS.alertsBtn}</button></div>
+  <div class="chiprow" id="chips">
+    <button class="on" data-filter="all">All</button><button data-filter="stock">In stock</button>
+    <button data-filter="deal">On deal</button><button data-filter="cheap">Under ₹35</button>
+    ${G("variants",`<button data-filter="v2fa">No 2FA</button><button data-filter="vmail">With mail</button><button data-filter="vspam">Spam-free</button>`)}</div>
+  <div id="shopbody">${shopBody()}</div>`;
+}
+function shopBody(){return `${FILTERED.length?`<div class="rows">${FILTERED.map(shopRow).join("")}</div>`:EMPTY}`;}
+function priceBits(s){
+  return `${s.was?`<s>${money(s.was)}</s>`:""}${money(s.price)}`;
+}
+function shopRow(s){const i=STOCK.indexOf(s),off=s.qty===0;
+  return `<div class="row" data-buy="${i}"><div class="flag">${s.f}</div>
+    <div class="mid"><b>${esc(s.c)} ${s.code}</b>
+      <small>${off?"Out of stock — get an alert":s.qty+" in stock · instant"}</small>
+      ${G("reviews",`<div style="margin-top:3px">${stars(s.c)}</div>`)}
+      ${G("variants",`<div style="margin-top:3px;display:flex;gap:4px;flex-wrap:wrap">
+        <span class="pill">No 2FA</span>${s.hot?'<span class="pill">With mail</span>':""}</div>`)}</div>
+    <div class="rt"><div class="p">${priceBits(s)}</div>
+      ${G("dynPrice",`<small style="display:block;font-size:.6rem;color:var(--tx2)">live price</small>`)}
+      <div style="display:flex;gap:5px;justify-content:flex-end;margin-top:6px">
+        ${G("wishlist",`<button class="btn xs soft" data-wish="${i}">${WISH.includes(i)?"♥":"♡"}</button>`)}
+        <button class="btn xs">${off?"Notify Me":"Buy"}</button></div></div></div>`;}
+function shopCard(s){const i=STOCK.indexOf(s),off=s.qty===0;
+  return `<div class="pcard" data-buy="${i}" style="position:relative">
+    ${G("wishlist",`<span class="heart ${WISH.includes(i)?"on":""}" data-wish="${i}">${ic("star")}</span>`)}
+    <div class="top"><div class="flag">${s.f}</div>
+      <span class="pill ${off?"off":"on"}">${off?"Sold out":s.qty+" left"}</span></div>
+    <div><div class="nm">${esc(s.c)}</div><div class="meta">${s.code} · instant</div>
+      ${G("reviews",`<div style="margin-top:4px">${stars(s.c)}</div>`)}</div>
+    <div class="price">${priceBits(s)}</div>
+    <button class="btn block sm">${off?"Notify Me":"Buy Now"}</button></div>`;}
+
+function vOrders(){
+  return `<div class="sec"><h2>Your Orders</h2><a data-act="csv">Export</a></div>
+  ${ORDERS.map((o,oi)=>`<div class="card" data-order-id="${o.id}">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="flag">${o.f}</div>
+      <div style="flex:1;min-width:0"><b style="font-size:.85rem;display:block">${o.num}</b>
+        <small style="color:var(--tx2);font-size:.7rem">${o.when}</small></div>
+      <div style="text-align:right"><span class="pill ${o.st==="Delivered"?"on":"off"}">${o.st}</span></div></div>
+    <div class="card tight" style="margin:10px 0 0;background:var(--card2)">
+      <div class="kv"><span>Phone number</span>
+        <b><code style="font-size:.8rem;user-select:all">${esc(o.phone||"—")}</code>
+        ${o.phone?`<button class="btn xs soft" data-copy="text" data-copy-value="${esc(o.phone)}">Copy</button>`:""}</b></div>
+      <div class="kv"><span>2FA password</span>
+        <b><code style="font-size:.8rem;user-select:all">${esc(o.twofa||"none")}</code>
+        ${o.twofa?`<button class="btn xs soft" data-copy="text" data-copy-value="${esc(o.twofa)}">Copy</button>`:""}</b></div>
+      <div class="kv"><span>Last login code</span>
+        <b><code style="font-size:.8rem;user-select:all">${esc(o.otp||"not yet")}</code>
+        ${o.otp?`<button class="btn xs soft" data-copy="text" data-copy-value="${esc(o.otp)}">Copy</button>`:""}</b></div>
+      <div class="kv"><span>Status</span><b>${o.login==="in"
+        ? '<span class="pill on">Logged in · yours only</span>'
+        : (o.window>0
+            ? '<span class="pill">Codes forwarding · '+o.window+' min left</span>'
+            : '<span class="pill off">Handover complete</span>')}</b></div>
+    </div>
+    ${G("timeline",`<div class="tl">
+      <div class="ok"><b>Paid</b><small>${o.when}</small></div>
+      <div class="ok"><b>Delivered</b><small>Session handed over instantly</small></div>
+      <div class="${o.st==="Delivered"?"ok":""}"><b>OTP received</b><small>${o.st==="Delivered"?"Code forwarded in-app":"Waiting"}</small></div>
+      <div><b>Closed</b><small>Auto-closes after the warranty window</small></div></div>`)}
+    <div class="btnrow" style="margin-top:11px">
+      <button class="btn sm" data-otp="${o.num}">Get OTP</button>
+      ${G("redownload",`<button class="btn sm soft" data-ord="details">Details</button>`)}</div>
+    <div class="btnrow" style="margin-top:7px">
+      ${G("sessionFile",`<button class="btn sm soft" data-ord="file">${ic("copy")} File</button>`)}
+      ${G("receipts",`<button class="btn sm soft" data-ord="receipt">Receipt</button>`)}
+      ${(o.login==="in")?"":`<button class="btn sm" data-loggedin="${o.id}">I'm logged in</button>`}
+      ${G("warranty",`<button class="btn sm ghost" data-claim-order="${o.id}">Report issue</button>`)}</div>
+    ${G("reviews",`<div class="kv" style="margin-top:9px"><span>Rate this order</span>
+      <b><button class="btn xs soft" data-rate="${o.c}">Rate</button></b></div>`)}
+  </div>`).join("")}
+
+  <div class="card" style="text-align:center"><h3>Need help with an order?</h3>
+    <p class="sub">${FEAT.autoRefund?"Failed logins are refunded automatically within 10 minutes.":"Contact support and we will look into it."}</p>
+    <div class="btnrow" style="margin-top:12px"><button class="btn soft" data-act="support">Support</button>
+    ${G("dispute",`<button class="btn ghost" data-dispute>Dispute</button>`)}</div></div>`;
+}
+
+function vEarn(){
+  return `${G("streak",`<div class="card">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="flag">${ic("zap")}</div><div style="flex:1"><h3>Daily Check-in</h3><p class="sub">Day ${EARN.streak} streak · ${money(EARN.daily)} waiting</p></div></div>
+    <div style="display:flex;gap:6px;margin:14px 0">
+      ${[1,2,3,4,5,6,7].map(d=>`<div style="flex:1;height:34px;border-radius:9px;display:grid;place-items:center;font-size:.68rem;font-weight:700;border:1px solid var(--line);${d<=(EARN.streak||0)?"background:var(--pillgrad);color:#0f1113;border-color:transparent":"background:var(--card2);color:var(--tx2)"}">${d}</div>`).join("")}</div>
+    <button class="btn cta block" data-claim ${EARN.claimed?"disabled":""}>${EARN.claimed?"Claimed today":"Claim "+money(EARN.daily)}</button></div>`)}
+  ${G("loyalty",`<div class="card"><h3>Loyalty Points</h3><p class="sub">1 point per ₹10 spent. 100 points = ₹10 balance.</p>
+    <div class="kv"><span>Balance</span><b>${EARN.points} pts</b></div>
+    <div class="kv"><span>Worth</span><b>${money(EARN.pointsWorth)}</b></div>
+    <button class="btn block" id="redeemgo" ${EARN.points>0?"":"disabled"}>Redeem Points</button></div>`)}
+  ${anyF("refDash","refL2")?`<div class="card"><h3>Invite &amp; Earn</h3>
+    <p class="sub">${FEAT.refL2?"5% from people you invite, plus 1% from the people they invite.":"1% of every deposit your invites ever make."}</p>
+    <div class="kv"><span>Invites</span><b>${EARN.invites}</b></div>
+    ${G("refL2",`<div class="kv"><span>Level 1 earnings</span><b>${money(EARN.l1)}</b></div>
+    <div class="kv"><span>Level 2 earnings</span><b>${money(EARN.l2)}</b></div>`)}
+    <div class="kv"><span>Total earned</span><b>${money(EARN.earned)}</b></div>
+    <div class="kv"><span>Your link</span><b style="font-size:.72rem">${esc(EARN.link)}</b></div>
+    <div class="btnrow" style="margin-top:12px"><button class="btn" data-copy="ref">${ic("copy")} Copy Link</button>
+    <button class="btn soft" data-copy="ref">Share</button></div>
+    ${G("refDash",`<div class="sec" style="margin-top:6px"><h2 style="font-size:.78rem">Recent invites</h2></div>
+    ${EARN.recent.length?EARN.recent.map(([u,a,e])=>`<div class="feedline"><b>${esc(u)}</b> ${esc(a)}<span style="margin-left:auto;color:var(--ok)">${esc(e)}</span></div>`).join("")
+      :'<p class="sub" style="margin:0">Nobody has joined through your link yet.</p>'}
+    <p class="sub" style="margin:11px 0 0">Referral earnings land in your balance automatically — nothing to claim.</p>`)}
+  </div>`:""}
+  ${G("leaderboard",`<div class="card"><h3>This week's top buyers</h3><p class="sub">Number one wins ₹500 on Sunday.</p>
+    ${EARN.leaders.length?EARN.leaders.map(([r,u,v],i)=>`<div class="lb"><span class="rk ${i===0?"g":""}">${esc(r)}</span>
+        <div style="flex:1;min-width:0"><b style="font-size:.8rem">${esc(u)}</b></div><b style="font-size:.8rem">${esc(v)}</b></div>`).join("")
+      :'<p class="sub" style="margin:0">No purchases yet this week.</p>'}</div>`)}
+  ${G("winback",`<div class="card tight" style="display:flex;align-items:center;gap:10px">
+    <span class="pill hot">${ic("fire")} Comeback</span>
+    <div style="flex:1;min-width:0;font-size:.74rem;color:var(--tx2)">10% off — expires in 48 hours</div>
+    <button class="btn xs" id="offeruse">Use</button></div>`)}
+  <div class="sec"><h2>Tasks</h2></div>
+  ${EARN.tasks.map(([t,r,done])=>`<div class="card tight" style="display:flex;align-items:center;gap:11px">
+      <div class="flag">${done?ic("check"):ic("zap")}</div>
+      <div style="flex:1;min-width:0"><b style="font-size:.82rem">${t}</b><br><small style="color:var(--tx2);font-size:.7rem">Reward ${r}</small></div>
+      <button class="btn xs ${done?"soft":""}" ${done?"disabled":""} data-act="task">${done?"Done":"Start"}</button></div>`).join("")}`;
+}
+
+function vWallet(){
+  return `<div class="hero" style="text-align:center">
+    <div class="kick">${CMS.walKick}</div>
+    <h1 style="font-size:2.3rem">₹<span id="bal2" class="tick">${BAL.toFixed(2)}</span></h1>
+    <p style="margin:0 auto 14px">${CMS.walSub}</p>
+    <div style="margin:0 auto;max-width:300px">
+      <button class="btn cta block" data-dep>${ic("plus")} ${CMS.walAdd}</button>
+      ${G("crypto",`<button class="btn glass block" style="margin-top:8px" data-crypto>Pay with Crypto</button>`)}</div></div>
+  <div class="card tight" style="display:flex;align-items:center;gap:10px">
+    <span class="pill on"><i class="dot"></i>Auto-verify ON</span>
+    <div style="flex:1;min-width:0;font-size:.74rem;color:var(--tx2)">Top-ups are credited as soon as they arrive</div>
+    <button class="btn xs soft" data-act="status">Status</button></div>
+  ${G("depBonus",`<div class="card"><h3>Top-up bonus</h3><p class="sub">Extra credit added automatically.</p>
+    <div style="display:flex;gap:7px;margin-top:10px">
+      ${[["₹500","+5%"],["₹1000","+8%"],["₹2000","+12%"]].map(([a,b])=>`<div style="flex:1;text-align:center;padding:9px 4px;border-radius:12px;border:1px solid var(--line);background:var(--card2)">
+        <b style="font-size:.8rem;display:block">${a}</b><small style="font-size:.68rem;color:var(--ok)">${b}</small></div>`).join("")}</div></div>`)}
+  <div class="sec"><h2>Quick Top-up</h2></div>
+  <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+    ${[50,100,200,500,1000,2000].map(a=>`<button class="btn soft" data-amt="${a}">₹${a}</button>`).join("")}</div>
+  ${G("depLimits",`<p class="sub" style="margin:9px 0 0;font-size:.7rem">Minimum ₹10 · maximum ₹20,000 per top-up.</p>`)}
+  <div class="card" style="margin-top:12px"><h3>${CMS.payTitle}</h3>
+    <p class="sub">${CMS.paySub}</p>
+    <div class="kv"><span>UPI ID</span><b>${esc(STORE.upi||"not set yet")}</b></div>
+    <div class="kv"><span>Payee</span><b>${esc(STORE.payee||"—")}</b></div>
+    ${G("upiRotate",`<div class="kv"><span>Handles in rotation</span><b>3 active</b></div>`)}
+    <div class="kv"><span>Payee</span><b>Your Store Name</b></div>
+    <div class="kv"><span>Auto-verify</span><b style="color:var(--ok)">Enabled</b></div>
+    ${G("wrongAmt",`<div class="kv"><span>Wrong amount</span><b>Credited as paid</b></div>`)}
+    <button class="btn block soft" style="margin-top:12px" data-copy="upi">${ic("copy")} Copy UPI ID</button></div>
+  ${G("abandonRemind",`<p class="sub" style="margin:10px 0 0;font-size:.7rem">We will remind you before an unfinished payment expires.</p>`)}
+  <div class="sec"><h2>${FEAT.ledger?"Statement":"History"}</h2>${G("ledger",`<a data-admin-act="export">Export</a>`)}</div>
+  ${TX.map((t,i)=>`<div class="card tight" style="display:flex;align-items:center;gap:11px">
+    <div class="flag">${t.a[0]==="+"?ic("down"):ic("up")}</div>
+    <div style="flex:1;min-width:0"><b style="font-size:.82rem">${t.t}</b><br><small style="color:var(--tx2);font-size:.7rem">${t.w}</small></div>
+    <div style="text-align:right"><b style="font-size:.85rem;color:${t.a[0]==="+"?"var(--ok)":"var(--tx)"}">${t.a}</b>
+    ${G("ledger",`<br><small style="font-size:.65rem;color:var(--tx2)">bal ₹${(248.5+i*7).toFixed(2)}</small>`)}</div></div>`).join("")}`;
+}
+
+function vYou(){
+  const me=ME||{};
+  const spent=me.spent||0, target=spent>=500?2000:500;
+  const pct=Math.max(4,Math.min(100,Math.round(spent/target*100)));
+  const av=me.photo?`<img src="${me.photo}" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 10px" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'flag',style:'width:64px;height:64px;margin:0 auto 10px'}))">`
+    :`<div class="flag" style="width:64px;height:64px;margin:0 auto 10px">${ic("user")}</div>`;
+  return `<div class="card shinecard tilt" data-tilt style="text-align:center"><span class="glare"></span>
+    ${av}
+    <h3 style="font-size:1.05rem">${esc(me.name||"You")}</h3>
+    <p class="sub">${esc(me.username||("ID "+(me.id||"—")))}${me.username?" · ID "+(me.id||"—"):""}${me.joined?" · joined "+esc(me.joined):""}</p>
+    <div style="display:flex;gap:7px;justify-content:center;margin-top:10px;flex-wrap:wrap">
+      <span class="pill on">${esc(me.tier||"Bronze")}</span><span class="pill">${me.orders||0} orders</span>
+      <span class="pill">${money(me.balance||0)}</span>
+      ${G("loyalty",`<span class="pill">${me.points||0} pts</span>`)}
+      ${G("streak",`<span class="pill">${me.streak||0}-day streak</span>`)}
+      ${(FEAT.buyerBadge&&(me.orders||0)>=5)?`<span class="pill on">${ic("check")} Verified buyer</span>`:""}
+      ${(me.debt>0)?`<span class="pill hot">${money(me.debt)} udhar</span>`:""}</div>
+    <div style="margin-top:14px;height:7px;border-radius:9px;background:var(--card2);overflow:hidden">
+      <i style="display:block;height:100%;width:${pct}%;background:var(--pillgrad)"></i></div>
+    <p class="sub" style="margin-top:7px;font-size:.72rem">${me.next_tier>0
+      ? money(me.next_tier)+" more spent to reach "+(spent>=500?"Platinum":"Gold")
+      : "Top tier reached"}</p></div>
+  ${G("wishlist",`<div class="sec"><h2>Saved countries</h2></div>
+    <div class="card">${WISH.length?WISH.map(i=>`<div class="kv"><span>${STOCK[i].f} ${esc(STOCK[i].c)} ${STOCK[i].code}</span>
+      <b><button class="btn xs" data-buy="${i}">Buy</button></b></div>`).join(""):'<p class="sub" style="margin:0">Tap the heart on any country to save it here.</p>'}</div>`)}
+  <div class="sec"><h2>Account</h2></div>
+  <div class="card">${[["Order history","orders"],["Wallet & payments","wallet"]]
+    .concat(anyF("refDash","refL2")?[["Referral program","earn"]]:[])
+    .map(([t,g])=>`<div class="kv" style="cursor:pointer" data-go="${g}"><span style="color:var(--tx)">${t}</span><b>${ic("chev")}</b></div>`).join("")}
+    ${G("i18n",`<div class="kv"><span style="color:var(--tx)">Language</span><b>
+      <select class="inp" style="height:32px;width:auto;font-size:.74rem"><option>English</option><option>हिन्दी</option></select></b></div>`)}</div>
+  ${G("notifPrefs",`<div class="sec"><h2>Notifications</h2></div>
+  <div class="card">
+    <div class="swap"><div class="t">Restock alerts<small>DM me when my country is back</small></div>
+      <div class="tg ${PREFS.restock?"on":""}" data-pref="restock"></div></div>
+    ${G("receipts",`<div class="swap"><div class="t">Order receipts<small>Send a receipt after each buy</small></div>
+      <div class="tg ${PREFS.receipts?"on":""}" data-pref="receipts"></div></div>`)}
+    <div class="swap"><div class="t">Promo messages<small>Flash sales and giveaways</small></div>
+      <div class="tg ${PREFS.promos?"on":""}" data-pref="promos"></div></div>
+    ${G("pushNotif",`<div class="swap"><div class="t">Mini app push<small>Message me when something happens</small></div>
+      <div class="tg ${PREFS.push?"on":""}" data-pref="push"></div></div>`)}
+  </div>`)}
+  <div class="btnrow" style="margin-top:12px"><button class="btn soft" id="supportgo">Support</button>
+  <button class="btn ghost" id="termsgo">Terms</button></div>`;
+}
+
+function bindBuy(){
+  document.querySelectorAll("[data-wish]").forEach(el=>el.onclick=e=>{
+    e.stopPropagation();const i=+el.dataset.wish;
+    const k=WISH.indexOf(i);if(k<0)WISH.push(i);else WISH.splice(k,1);
+    toast(k<0?"Saved to wishlist":"Removed from wishlist");applyFilter();});
+  document.querySelectorAll("[data-buy]").forEach(el=>el.onclick=e=>{
+    if(e.target.closest("[data-toast],[data-wish]"))return;const s=STOCK[+el.dataset.buy];
+    if(s.qty===0&&!false){toast("Alert set — you'll get a DM on restock");return}
+    buySheet(s,s.qty===0);});
+}
+let QTY=1,COUPON=0;
+function buySheet(s,pre){
+  QTY=1;COUPON=0;
+  const max=FEAT.cart||FEAT.bulkDisc?Math.max(1,Math.min(25,s.qty||5)):1;
+  sheet(`<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <div class="flag" style="width:50px;height:50px;font-size:1.5rem">${s.f}</div>
+      <div style="flex:1"><h3 style="margin:0;font-size:1rem">${esc(s.c)} Account</h3>
+      <p class="sub" style="margin:0">${s.code} · ${s.qty+" in stock · instant"}</p>
+      ${G("reviews",`<div style="margin-top:4px">${stars(s.c)}</div>`)}</div></div>
+    ${G("healthCheck",`<div class="kv"><span>Session health</span><b style="color:var(--ok)">${ic("check")} checked live</b></div>`)}
+    ${G("variants",`<div class="kv"><span>Variant</span><b>
+      <select class="inp" style="height:32px;width:auto;font-size:.74rem"><option>No 2FA</option><option>2FA on (+₹5)</option><option>With mail (+₹8)</option></select></b></div>`)}
+    ${(FEAT.cart||FEAT.bulkDisc)?`<div class="kv"><span>Quantity</span><b>
+      <span class="qty"><button id="qm">−</button><b id="qn">1</b><button id="qp">+</button></span></b></div>`:""}
+    ${G("bulkDisc",`<p class="sub" id="bdnote" style="margin:6px 0 0;font-size:.7rem">Buy 5+ for 5% off · 10+ for 10% off · 25+ for 15% off.</p>`)}
+    ${G("coupons",`<div class="field" style="margin-top:10px"><label>Coupon code</label>
+      <div style="display:flex;gap:7px"><input class="inp" id="cpn" placeholder="WELCOME10">
+      <button class="btn sm" id="cpnapply" style="flex:0 0 auto">Apply</button></div></div>`)}
+    <div class="kv"><span>Price</span><b id="bprice">${money(s.price)}</b></div>
+    <div class="kv"><span>Your balance</span><b>${money(BAL)}</b></div>
+    <div class="kv"><span>After purchase</span><b id="bafter">${money(Math.max(0,BAL-s.price))}</b></div>
+    <div id="splitnote"></div>
+    <div class="btnrow" style="margin-top:14px"><button class="btn ghost" data-close>Cancel</button>
+      <button class="btn cta" id="bconfirm">Confirm Buy</button></div>
+    ${G("cart",`<button class="btn soft block sm" style="margin-top:8px" id="baddcart">Add to cart</button>`)}`);
+  const g=id=>document.getElementById(id);
+  function total(){
+    let unit=s.price, q=QTY, t=unit*q;
+    if(FEAT.bulkDisc){const d=q>=25?.15:q>=10?.10:q>=5?.05:0;t=t*(1-d);}
+    if(FEAT.coupons&&COUPON)t=t*(1-COUPON/100);
+    return Math.round(t*100)/100;
+  }
+  function paint(){
+    const t=total();
+    g("bprice").textContent=money(t);
+    g("bafter").textContent=money(Math.max(0,BAL-t));
+    const sn=g("splitnote");
+    if(FEAT.splitPay&&t>BAL){sn.innerHTML=`<div class="kv"><span>Split payment</span><b>${money(BAL)} wallet + ${money(t-BAL)} UPI</b></div>`;}
+    else sn.innerHTML="";
+    if(g("qn"))g("qn").textContent=QTY;
+  }
+  if(g("qm"))g("qm").onclick=()=>{QTY=Math.max(1,QTY-1);paint();};
+  if(g("qp"))g("qp").onclick=()=>{QTY=Math.min(max,QTY+1);paint();};
+  if(g("cpn")&&OFFER&&!g("cpn").value)g("cpn").value=OFFER;
+  if(g("cpnapply"))g("cpnapply").onclick=()=>{
+    const v=(g("cpn").value||"").trim().toUpperCase();
+    if(!v){toast("Enter a coupon code");return}
+    COUPON=v==="WELCOME10"?10:v==="SAVE20"?20:0;
+    toast(COUPON?COUPON+"% coupon applied":"Coupon not valid");paint();};
+  if(g("baddcart"))g("baddcart").onclick=async()=>{
+    if(LIVE){
+      const d=await apiTry("/api/cart",{action:"add",country:s.c,qty:QTY});
+      if(!d)return;
+      closeSheet();toast(QTY+" × "+s.c+" added to cart");await refresh();return;
+    }
+    for(let i=0;i<QTY;i++)CART.push(s);applyFeatures();closeSheet();toast(QTY+" × "+s.c+" added to cart");};
+  g("bconfirm").onclick=async()=>{
+    const t=total();
+    if(BAL<t&&!FEAT.splitPay){toast("Not enough balance — add funds");return}
+    if(BAL<t&&FEAT.splitPay){closeSheet();toast("Paying "+money(t-BAL)+" by UPI");depositSheet(Math.ceil(t-BAL));return}
+    if(LIVE){
+      const btn=g("bconfirm");btn.disabled=true;btn.textContent="Working…";
+      const code=g("cpn")?(g("cpn").value||"").trim():"";
+      const d=await apiTry("/api/buy",{country:s.c,qty:QTY,coupon:code});
+      btn.disabled=false;btn.textContent="Confirm Buy";
+      if(!d)return;
+      if(typeof d.balance==="number")BAL=d.balance;
+      syncBal();closeSheet();burst();
+      const first=(d.orders&&d.orders[0])||null;
+      toast(first?("Delivered — "+first.id):"Purchased — details in Orders");
+      await refresh();
+      if(first&&first.payload)setTimeout(()=>sheet(`<h3 style="margin:0 0 4px;font-size:1rem">${esc(first.id)}</h3>
+        <p class="sub">Keep this safe. It is also in Orders.</p>
+        <div class="kv" style="display:block"><code style="font-size:.72rem;word-break:break-all">${esc(first.payload)}</code></div>
+        <button class="btn block" style="margin-top:10px" data-close>Done</button>`),350);
+      return;
+    }
+    BAL-=t;syncBal();closeSheet();burst();
+    toast("Purchased — OTP is in Orders");
+    if(FEAT.pushNotif)setTimeout(()=>toast("Bot notification sent to your chat"),1500);};
+  paint();
+}
+function cartSheet(){
+  if(!CART.length){toast("Cart is empty");return}
+  const t=CART.reduce((a,b)=>a+b.price,0);
+  sheet(`<h3 style="margin:0 0 4px;font-size:1rem">Your cart</h3>
+    <p class="sub">${CART.length} item${CART.length>1?"s":""} — one confirmation, one debit.</p>
+    ${CART.map((s,i)=>`<div class="kv"><span>${s.f} ${esc(s.c)} ${s.code}</span>
+      <b>${money(s.price)} <button class="btn xs ghost" data-cdel="${i}">×</button></b></div>`).join("")}
+    <div class="kv"><span>Total</span><b>${money(t)}</b></div>
+    <div class="btnrow" style="margin-top:14px"><button class="btn ghost" data-close>Close</button>
+      <button class="btn cta" id="cartbuy">Checkout</button></div>`);
+  document.querySelectorAll("[data-cdel]").forEach(b=>b.onclick=()=>{CART.splice(+b.dataset.cdel,1);applyFeatures();cartSheet();});
+  document.getElementById("cartbuy").onclick=()=>{
+    if(BAL<t){toast("Not enough balance — add funds");return}
+    BAL-=t;CART=[];syncBal();applyFeatures();closeSheet();burst();toast("Order placed — OTPs are in Orders");};
+}
+function goTab(t){
+  const b=document.querySelector(`#tabs button[data-tab="${t}"]`);
+  if(b)b.click();
+}
+function bindCommon(){
+  document.querySelectorAll("[data-ord]").forEach(b=>b.onclick=async()=>{
+    const what=b.dataset.ord;
+    const card=b.closest("[data-order-id]");
+    const oid=(card&&card.dataset.orderId)||(ORDERS[0]&&ORDERS[0].id)||"";
+    if(!oid){toast("No order selected");return;}
+    if(!LIVE){toast("Preview only");return;}
+    const lbl=b.textContent;b.disabled=true;b.textContent="…";
+    const r=await apiTry("/api/order",{id:oid,what:what});
+    b.disabled=false;b.textContent=lbl;
+    if(!r)return;
+    if(what==="details")toast("Login details sent to your chat");
+    if(what==="file")toast("Session file sent to your chat");
+    if(what==="receipt")toast("Receipt sent to your chat");
+  });
+  document.querySelectorAll("[data-rate-go]").forEach(b=>b.onclick=async()=>{
+    const stars=+b.dataset.rateGo;
+    const c=(window.__rateCountry)||((ORDERS[0]||{}).c)||"";
+    if(!LIVE){closeSheet();toast("Thanks for the "+stars+"★");return;}
+    const r=await apiTry("/api/review",{country:c,rating:stars});
+    if(!r)return;
+    closeSheet();toast("Thanks — "+c+" is now "+r.avg+"★");
+    await refresh();
+  });
+  document.querySelectorAll("[data-act]").forEach(b=>b.onclick=async()=>{
+    const what=b.dataset.act;
+    if(what==="channel"){
+      const c=(ADM.channels&&ADM.channels[0])||null;
+      const h=c?String(c.handle||"").replace(/^@/,""):"";
+      if(h)openPay(h.startsWith("http")?h:("https://t.me/"+h));
+      else toast("No channel has been added yet");
+      return;
+    }
+    if(what==="flash"){
+      const on=ADM.market&&ADM.market.flash_on;
+      sheet(`<h3 style="margin:0 0 4px;font-size:1rem">Flash sale</h3>
+        <p class="sub">${on?("Every price is "+(ADM.market.flash||0)+"% off right now."):"No sale is running at the moment."}</p>
+        <button class="btn block" style="margin-top:12px" data-close>Close</button>`);
+      return;
+    }
+    if(what==="sort"){
+      FILTERED=(FILTERED&&FILTERED.length?FILTERED:STOCK).slice().sort((x,y)=>(y.qty||0)-(x.qty||0));
+      render();toast("Sorted by what is in stock");
+      return;
+    }
+    if(what==="alerts"){
+      const mine=(window.__alerts)||[];
+      const off=STOCK.filter(x=>!x.qty).map(x=>x.c);
+      const list=(off.length?off:STOCK.map(x=>x.c)).slice(0,8);
+      sheet(`<h3 style="margin:0 0 4px;font-size:1rem">Restock alerts</h3>
+        <p class="sub">We message you the moment one of these is back.</p>
+        ${list.map(c=>`<div class="kv"><span>${esc(c)}</span>
+          <b><button class="btn xs ${mine.indexOf(c)>=0?"":"soft"}" data-alert="${esc(c)}">
+            ${mine.indexOf(c)>=0?"On":"Notify me"}</button></b></div>`).join("")}
+        <button class="btn block" style="margin-top:12px" data-close>Done</button>`);
+      document.querySelectorAll("[data-alert]").forEach(a=>a.onclick=async()=>{
+        if(!LIVE){toast("Preview only");return;}
+        const r=await apiTry("/api/alert",{country:a.dataset.alert});
+        if(!r)return;
+        window.__alerts=r.alerts||[];
+        a.textContent=r.on?"On":"Notify me";
+        a.classList.toggle("soft",!r.on);
+        toast(r.on?("We will tell you when "+a.dataset.alert+" is back"):"Alert removed");
+      });
+      return;
+    }
+    if(what==="csv"){
+      const rows=[["order","country","price","status","when"]]
+        .concat(ORDERS.map(o=>[o.id,o.c,o.price,o.st,o.when]));
+      const csv=rows.map(r=>r.join(",")).join("\n");
+      const a=document.createElement("a");
+      a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
+      a.download="my-orders.csv";document.body.appendChild(a);a.click();a.remove();
+      toast(ORDERS.length+" orders downloaded");
+      return;
+    }
+    if(what==="support"){
+      const h=(STORE.support||"").replace(/^@/,"");
+      if(h)openPay("https://t.me/"+h);
+      else toast("Send your question in the chat and we will reply");
+      return;
+    }
+    if(what==="task"){
+      const row=b.closest(".card");
+      const label=row?(row.querySelector("b")||{}).textContent||"":"";
+      if(/channel/i.test(label)){b.blur();document.querySelector('[data-act="channel"]')?.click();return;}
+      if(/order/i.test(label)){goTab("shop");toast("Pick a country to place your first order");return;}
+      goTab("earn");toast("Share your invite link to finish this");
+      return;
+    }
+    if(what==="status"){
+      const g=(ADM.pay&&ADM.pay.gmail_set);
+      const pend=(ADM.pay&&ADM.pay.pending)||0;
+      sheet(`<h3 style="margin:0 0 4px;font-size:1rem">Payment checking</h3>
+        <p class="sub">${g?"Automatic checking is on. Pay, then tap Verify.":
+          "Automatic checking is not set up, so an admin confirms payments by hand."}</p>
+        ${pend?`<div class="kv"><span>Waiting for an admin</span><b>${pend}</b></div>`:""}
+        <button class="btn block" style="margin-top:12px" data-close>Close</button>`);
+      return;
+    }
+    if(what==="copycode"){
+      const el=b.closest(".card,.sheetbody,#sheet")||document;
+      const code=(el.querySelector("code")||{}).textContent||"";
+      copyText(code.trim(),"Code");
+      return;
+    }
+    if(what==="replace"){
+      const card=b.closest("[data-order-id]");
+      const oid=(card&&card.dataset.orderId)||(ORDERS[0]&&ORDERS[0].id)||"";
+      if(!LIVE){closeSheet();toast("Replacement sent");return;}
+      const r=await apiTry("/api/order",{id:oid,what:"replace"});
+      if(!r)return;
+      closeSheet();
+      toast(r.refunded?"No stock left — refunded to your wallet":("Replaced — "+r.order));
+      await refresh();
+      return;
+    }
+    if(what==="crypto"){
+      if(!LIVE){closeSheet();toast("We will confirm your transfer shortly");return;}
+      const r=await apiTry("/api/crypto",{ref:""});
+      if(r){closeSheet();toast("We will confirm your transfer shortly");}
+      return;
+    }
+  });
+  document.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>{
+    const what=b.dataset.copy;
+    if(what==="upi")return copyText(STORE.upi,"UPI ID");
+    if(what==="ref"){
+      let l=EARN.link||"";
+      if(l&&!/^https?:/.test(l))l="https://"+l;
+      return copyText(l,"Invite link");
+    }
+    return copyText(b.dataset.copyValue||b.textContent.trim(),"Copied");
+  });
+  const rd=document.getElementById("redeemgo");
+  if(rd)rd.onclick=async()=>{
+    if(!LIVE){toast("Redeemed");return;}
+    rd.disabled=true;
+    const r=await apiTry("/api/redeem",{});
+    rd.disabled=false;
+    if(!r)return;
+    BAL=r.balance;syncBal();burst();
+    toast(r.points+" points → "+money(r.amount));
+    await refresh();
+  };
+  const ou=document.getElementById("offeruse");
+  if(ou)ou.onclick=()=>{
+    const c=(ADM.coupons&&ADM.coupons.length)?ADM.coupons[0].code:"";
+    if(c){OFFER=c;copyText(c,"Coupon");}
+    else toast("No coupon is running right now");
+  };
+  document.querySelectorAll("[data-pref]").forEach(t=>t.onclick=async()=>{
+    const key=t.dataset.pref, on=!t.classList.contains("on");
+    t.classList.toggle("on",on);PREFS[key]=on;
+    if(LIVE){
+      const r=await apiTry("/api/prefs",{key:key,on:on});
+      if(!r){t.classList.toggle("on",!on);PREFS[key]=!on;return;}
+    }
+    toast(on?"Turned on":"Turned off");
+  });
+  const tgb=document.getElementById("termsgo");
+  if(tgb)tgb.onclick=()=>sheet(`<h3 style="margin:0 0 4px;font-size:1rem">Terms & refunds</h3>
+    <p class="sub" style="white-space:pre-wrap">${esc(STORE.terms||CMS.terms||"No terms have been written yet.")}</p>
+    <button class="btn block" style="margin-top:12px" data-close>Close</button>`);
+  const sg=document.getElementById("supportgo");
+  if(sg)sg.onclick=()=>{
+    const h=(STORE.support||"").replace(/^@/,"");
+    if(h)openPay("https://t.me/"+h);
+    else sheet(`<h3 style="margin:0 0 4px;font-size:1rem">Support</h3>
+      <p class="sub">Send your question in the chat and we will reply.</p>
+      <button class="btn block" style="margin-top:12px" data-close>Close</button>`);
+  };
+}
+function bindStage(){
+  bindCommon();
+  bindBuy();
+  document.querySelectorAll("[data-scroll]").forEach(b=>b.onclick=()=>document.getElementById(b.dataset.scroll).scrollIntoView({behavior:"smooth"}));
+  document.querySelectorAll("[data-otp]").forEach(b=>b.onclick=async()=>{
+    const card=b.closest("[data-order-id]");
+    const oid=(card&&card.dataset.orderId)||b.dataset.otp||"";
+    const ord=ORDERS.find(x=>x.id===oid)||{};
+    if(!LIVE){
+      sheet(`<h3 style="margin:0 0 4px;font-size:1rem">Login code</h3>
+        <p class="sub">Sample code — this is the preview.</p>
+        <div class="otpbox">4 2 9 1 7</div>
+        <button class="btn block" style="margin-top:10px" data-close>Done</button>`);
+      return;
+    }
+    const lbl=b.textContent;b.disabled=true;b.textContent="Fetching…";
+    const r=await apiTry("/api/order",{id:oid,what:"otp"});
+    b.disabled=false;b.textContent=lbl;
+    if(!r)return;
+    sheet(`<h3 style="margin:0 0 4px;font-size:1rem">Login code</h3>
+      <p class="sub">${ord.phone?("For "+esc(ord.phone)):"For this account"}</p>
+      <div class="otpbox">${String(r.code).split("").join(" ")}</div>
+      <div class="kv"><span>Codes left</span><b>${r.left}</b></div>
+      ${r.window?`<div class="kv"><span>Forwarding ends in</span><b>${r.window} min</b></div>`:""}
+      <div class="btnrow" style="margin-top:10px">
+        <button class="btn soft" data-act="copycode">Copy Code</button>
+        <button class="btn" data-close>Done</button></div>`);
+  });
+  document.querySelectorAll("[data-claim]").forEach(b=>b.onclick=async()=>{
+    if(b.disabled)return;
+    b.disabled=true;
+    if(LIVE){
+      const r=await apiTry("/api/checkin",{});
+      if(!r){b.disabled=false;return;}
+      BAL=typeof r.balance==="number"?r.balance:BAL;
+      EARN.claimed=true;EARN.streak=r.streak||EARN.streak;
+      syncBal();burst();toast(money(r.amount)+" added · day "+r.streak);
+      b.textContent="Claimed today";
+      await refresh();
+      return;
+    }
+    BAL+=EARN.daily;syncBal();burst();toast(money(EARN.daily)+" added");
+    b.textContent="Claimed today";});
+  document.querySelectorAll("[data-amt]").forEach(b=>b.onclick=()=>depositSheet(b.dataset.amt));
+  document.querySelectorAll("[data-dep]").forEach(b=>b.onclick=()=>amountSheet());
+  document.querySelectorAll("[data-tg]").forEach(t=>t.onclick=()=>t.classList.toggle("on"));
+  document.querySelectorAll("[data-setsel]").forEach(sel=>sel.onchange=async()=>{
+    if(!LIVE){toast("Preview only");return;}
+    const r=await apiTry("/api/admin/setting",{key:sel.dataset.setsel,value:sel.value});
+    if(r)toast("Saved");
+  });
+  const q=document.getElementById("q");
+  if(q){q.value=QUERY;q.oninput=()=>{QUERY=q.value.toLowerCase();applyFilter()};}
+  document.querySelectorAll("#chips button").forEach(b=>b.onclick=()=>{CHIP=b.dataset.filter;
+    document.querySelectorAll("#chips button").forEach(x=>x.classList.toggle("on",x===b));applyFilter()});
+  document.querySelectorAll("[data-claim-order]").forEach(b=>b.onclick=()=>{
+    const oid=b.dataset.claimOrder;
+    const ord=ORDERS.find(x=>x.id===oid)||{};
+    if(ord.claim){toast("A claim for this order is already with an admin");return;}
+    sheet(`<h3 style="margin:0 0 4px;font-size:1rem">Report a problem</h3>
+      <p class="sub">An admin reads every report and decides. Nothing is refunded automatically.</p>
+      <div class="field" style="margin-top:12px"><label>What happened?</label>
+        <select class="inp" id="clr">
+          <option>Login not working</option><option>Account banned</option>
+          <option>Code never arrived</option><option>Wrong country</option>
+          <option>Something else</option></select></div>
+      <div class="field"><label>Details</label>
+        <textarea class="inp" id="cld" rows="3" placeholder="Tell us exactly what you saw"></textarea></div>
+      <button class="btn cta block" id="clgo">Send to an admin</button>
+      <button class="btn ghost block sm" style="margin-top:8px" data-close>Cancel</button>`);
+    document.getElementById("clgo").onclick=async()=>{
+      const reason=document.getElementById("clr").value;
+      const details=(document.getElementById("cld").value||"").trim();
+      if(details.length<5){toast("Tell us what went wrong");return;}
+      if(!LIVE){closeSheet();toast("Sent");return;}
+      const btn=document.getElementById("clgo");btn.disabled=true;btn.textContent="Sending…";
+      const r=await apiTry("/api/order",{id:oid,what:"claim",reason:reason,details:details});
+      btn.disabled=false;btn.textContent="Send to an admin";
+      if(!r)return;
+      closeSheet();toast("Claim #"+r.id+" sent — an admin will reply");
+      await refresh();
+    };
+  });
+  document.querySelectorAll("[data-loggedin]").forEach(b=>b.onclick=async()=>{
+    const oid=b.dataset.loggedin;
+    if(!LIVE){toast("Marked as logged in");return;}
+    sheet(`<h3 style="margin:0 0 4px;font-size:1rem">Confirm you are in</h3>
+      <p class="sub">We will delete our copy of the login session straight away, so the
+      account becomes yours alone. Codes will stop being forwarded.</p>
+      <button class="btn cta block" id="liok" style="margin-top:12px">Yes, I am logged in</button>
+      <button class="btn ghost block sm" style="margin-top:8px" data-close>Not yet</button>`);
+    document.getElementById("liok").onclick=async()=>{
+      const r=await apiTry("/api/order",{id:oid,what:"loggedin"});
+      if(!r)return;
+      closeSheet();toast("Done — the account is yours alone now");
+      await refresh();
+    };
+  });
+  document.querySelectorAll("[data-dispute]").forEach(b=>b.onclick=()=>{
+    const ord=b.dataset.dispute||"";
+    sheet(`<h3 style="margin:0 0 4px;font-size:1rem">Open a dispute</h3>
+     <p class="sub">${ord?("Order "+esc(ord)):"An admin reviews every dispute."}</p>
+     <div class="field" style="margin-top:12px"><label>Reason</label>
+       <select class="inp" id="dsr"><option>Not delivered</option><option>Account dead on arrival</option><option>Charged twice</option><option>Other</option></select></div>
+     <div class="field"><label>What happened?</label>
+       <textarea class="inp" id="dsd" rows="3" placeholder="Describe the problem"></textarea></div>
+     <div class="field"><label>Evidence (optional)</label>
+       <input class="inp" id="dsf" type="file" accept="image/*">
+       <small class="sub" id="dsfn"></small></div>
+     <div class="btnrow"><button class="btn ghost" data-close>Cancel</button>
+       <button class="btn cta" id="dsgo">Submit</button></div>`);
+    const f=document.getElementById("dsf");
+    if(f)f.onchange=()=>{const n=(f.files&&f.files[0])?f.files[0].name:"";
+      document.getElementById("dsfn").textContent=n?("Attached: "+n):"";};
+    document.getElementById("dsgo").onclick=async()=>{
+      const reason=document.getElementById("dsr").value;
+      const details=(document.getElementById("dsd").value||"").trim();
+      if(!details){toast("Describe what happened");return;}
+      const file=(f&&f.files&&f.files[0])||null;
+      const fn=file?("screenshot: "+file.name):"";
+      if(!LIVE){closeSheet();toast("Dispute opened");return;}
+      const btn=document.getElementById("dsgo");btn.disabled=true;btn.textContent="Sending…";
+      let shot="";
+      if(file){
+        if(file.size>8*1024*1024){toast("That image is too large (8 MB max)");
+          btn.disabled=false;btn.textContent="Submit";return;}
+        shot=await new Promise(res=>{
+          const rd=new FileReader();
+          rd.onload=()=>res(String(rd.result||""));
+          rd.onerror=()=>res("");
+          rd.readAsDataURL(file);
+        });
+      }
+      const r=await apiTry("/api/dispute",{order:ord,reason:reason,details:details,
+        evidence:fn,shot:shot});
+      btn.disabled=false;btn.textContent="Submit";
+      if(!r)return;
+      closeSheet();toast("Dispute #"+r.id+" sent to the admins");
+      await refresh();
+    };
+  });
+  document.querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>{window.__rateCountry=b.dataset.rate;return sheet(
+    `<h3 style="margin:0 0 4px;font-size:1rem">Rate ${b.dataset.rate}</h3>
+     <p class="sub">Your rating shows on the country in the shop.</p>
+     <div style="display:flex;gap:9px;justify-content:center;margin:16px 0">
+       ${[1,2,3,4,5].map(n=>`<button class="btn sm soft" data-rate-go="${n}">${n}★</button>`).join("")}</div>
+     <button class="btn ghost block sm" data-close>Close</button>`);}); 
+  document.querySelectorAll("[data-crypto]").forEach(b=>b.onclick=()=>sheet(
+    `<h3 style="margin:0 0 4px;font-size:1rem">Crypto top-up</h3>
+     <p class="sub">Send USDT-TRC20 — credited after 1 network confirmation.</p>
+     <div class="qr">QR CODE<br>(wallet address)</div>
+     <div class="kv"><span>Network</span><b>TRC-20</b></div>
+     <div class="kv"><span>Address</span><b style="font-size:.7rem">not-configured</b></div>
+     <div class="kv"><span>Rate</span><b>1 USDT = ₹88.40</b></div>
+     <div class="btnrow" style="margin-top:12px"><button class="btn ghost" data-close>Close</button>
+       <button class="btn cta" data-act="crypto">I've Sent It</button></div>`));
+  const tg=document.getElementById("tourgo"),ts=document.getElementById("tourskip");
+  if(tg)tg.onclick=()=>sheet(`<h3 style="margin:0 0 4px;font-size:1rem">How it works</h3>
+     <div class="steps" style="margin-top:12px">
+       <div class="step on"><i>1</i>Top up your wallet by UPI</div>
+       <div class="step on"><i>2</i>Pick a country and buy instantly</div>
+       <div class="step on"><i>3</i>Read the login code right here in Orders</div></div>
+     <button class="btn cta block" style="margin-top:12px" data-close>Got it</button>`);
+  if(ts)ts.onclick=()=>{FEAT.onboarding=false;render();toast("Tour hidden");};
+  startCountdown();
+  bindHold();
+}
+function applyFilter(){
+  FILTERED=STOCK.filter(s=>{
+    const t=(s.c+" "+s.code).toLowerCase();
+    if(QUERY&&!t.includes(QUERY))return false;
+    if(CHIP==="stock"&&s.qty===0)return false;
+    if(CHIP==="deal"&&!s.was)return false;
+    if(CHIP==="cheap"&&s.price>=35)return false;
+    if(CHIP==="v2fa"&&s.qty===0)return false;
+    if(CHIP==="vmail"&&!s.hot)return false;
+    if(CHIP==="vspam"&&s.price<30)return false;
+    return true;});
+  const b=document.getElementById("shopbody");
+  if(b){b.innerHTML=shopBody();bindBuy();}
+}
+let cdT=null;
+function startCountdown(){
+  const el=document.getElementById("cd");clearInterval(cdT);if(!el)return;
+  let t=14*60+52;
+  cdT=setInterval(()=>{if(!document.body.contains(el)){clearInterval(cdT);return}
+    t=t>0?t-1:14*60+52;el.textContent=String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0")},1000);
+}
+/* 05 · hold-to-confirm */
+function bindHold(){
+  document.querySelectorAll(".hold").forEach(b=>{
+    if(b._h)return;b._h=1;const fill=b.querySelector(".fill");let iv=null,p=0;
+    const stop=()=>{clearInterval(iv);p=0;if(fill)fill.style.width="0%"};
+    const go=e=>{e.preventDefault();clearInterval(iv);iv=setInterval(()=>{p+=4;if(fill)fill.style.width=p+"%";
+      if(p>=100){stop();b.classList.add("done");setTimeout(()=>b.classList.remove("done"),450);burst();toast(b.dataset.done||"Confirmed")}},28)};
+    b.addEventListener("pointerdown",go);["pointerup","pointerleave","pointercancel"].forEach(ev=>b.addEventListener(ev,stop));});
+}
+/* ═══════════ KIT RUNTIME ═══════════ */
+const RM=matchMedia("(prefers-reduced-motion:reduce)").matches;
+/* spring integrator — kit uses mass .1 / stiffness 150 / damping 12 */
+function Spring(v,{m=.1,k=150,d=12}={}){this.v=v;this.t=v;this.vel=0;this.m=m;this.k=k;this.d=d;}
+Spring.prototype.step=function(dt){const F=-this.k*(this.v-this.t)-this.d*this.vel;
+  this.vel+=(F/this.m)*dt;this.v+=this.vel*dt;return this.v;};
+
+/* 02 + 25 · animated dock: distance→scale with spring, plus sliding pill */
+(function dock(){
+  const dk=document.querySelector("nav#tabs .dock");if(!dk)return;
+  const btns=[...dk.querySelectorAll("button")],pill=document.getElementById("dpill");
+  const FINE=matchMedia("(hover:hover) and (pointer:fine)").matches&&!RM;
+  const sp=btns.map(()=>new Spring(1)),ps={x:new Spring(0,{k:260,d:11}),w:new Spring(0,{k:260,d:11})};
+  let mx=Infinity,last=performance.now(),placed=false;
+  function resetScale(){mx=Infinity;if(!FINE)btns.forEach(b=>b.style.transform="");}
+  if(FINE){
+    dk.addEventListener("pointermove",e=>{if(e.pointerType==="mouse")mx=e.clientX});
+    dk.addEventListener("pointerleave",()=>mx=Infinity);
+    ["pointerup","pointercancel","touchend","touchcancel","blur"].forEach(ev=>
+      addEventListener(ev,resetScale,{passive:true}));
+  }else{btns.forEach(b=>b.style.transform="");}
+  document.addEventListener("visibilitychange",resetScale);
+
+  function place(snap){
+    const on=dk.querySelector("button.on");
+    if(!on||!pill||!on.offsetWidth||!dk.offsetWidth)return;   // never place while hidden
+    ps.x.t=on.offsetLeft-dk.clientLeft;ps.w.t=on.offsetWidth;
+    pill.style.top=(on.offsetTop-dk.clientTop)+"px";pill.style.height=on.offsetHeight+"px";
+    if(snap||!placed){placed=true;ps.x.v=ps.x.t;ps.x.vel=0;ps.w.v=ps.w.t;ps.w.vel=0;
+      pill.style.transform="translateX("+ps.x.v+"px)";pill.style.width=ps.w.v+"px";
+      pill.classList.add("ready");}
+  }
+  new ResizeObserver(()=>place(!placed)).observe(dk);
+  addEventListener("resize",()=>place(true));
+  addEventListener("load",()=>place(!placed));
+  setTimeout(()=>place(!placed),60);setTimeout(()=>place(!placed),400);
+
+  (function loop(t){
+    const dt=Math.min(.032,(t-last)/1000);last=t;
+    if(FINE){btns.forEach((b,i)=>{let k=0;
+      if(mx!==Infinity){const r=b.getBoundingClientRect();
+        const dist=Math.abs(r.left+r.width/2-mx);k=Math.max(0,1-dist/150);}
+      sp[i].t=1+.34*k*k;const v=sp[i].step(dt);
+      b.style.transform=(v>1.002||sp[i].vel>.01||sp[i].vel<-.01)
+        ? "translateY("+(-8*(v-1)).toFixed(2)+"px) scale("+v.toFixed(3)+")" : "";});}
+    if(pill&&placed){pill.style.transform="translateX("+ps.x.step(dt).toFixed(2)+"px)";
+      pill.style.width=ps.w.step(dt).toFixed(2)+"px";}
+    requestAnimationFrame(loop);})(last);
+  window.__dockPlace=place;place(true);
+})();
+
+/* 14 · v-tabs sliding indicator for the admin subnav */
+(function vtabs(){
+  const nav=document.getElementById("asub"),pill=document.getElementById("vpill");if(!nav||!pill)return;
+  const px=new Spring(0,{k:210,d:19}),pw=new Spring(0,{k:210,d:19});let last=performance.now(),init=false;
+  function place(snap){const on=nav.querySelector("button.on");
+    if(!on||!on.offsetWidth||!nav.offsetWidth)return;
+    px.t=on.offsetLeft-nav.clientLeft;pw.t=on.offsetWidth;
+    pill.style.top=(on.offsetTop-nav.clientTop)+"px";pill.style.height=on.offsetHeight+"px";
+    if(snap||!init){init=true;px.v=px.t;px.vel=0;pw.v=pw.t;pw.vel=0;
+      pill.style.transform="translateX("+px.v+"px)";pill.style.width=pw.v+"px";}}
+  nav.addEventListener("click",()=>requestAnimationFrame(()=>place(false)));
+  nav.addEventListener("scroll",()=>place(false));
+  new ResizeObserver(()=>place(!init)).observe(nav);
+  addEventListener("load",()=>place(!init));setTimeout(()=>place(!init),80);place(true);
+  (function loop(t){const dt=Math.min(.032,(t-last)/1000);last=t;
+    if(init){pill.style.transform="translateX("+px.step(dt).toFixed(2)+"px)";pill.style.width=pw.step(dt).toFixed(2)+"px";}
+    requestAnimationFrame(loop);})(last);
+  window.__vtabPlace=place;
+})();
+
+/* 08 · kinetic grid — pointer warp + click ripples (canvas port) */
+(function kinetic(){
+  const cv=document.getElementById("kg");if(!cv||RM)return;const ctx=cv.getContext("2d");
+  const SP=30,INF=210,WARP=22,LERP=.09,RGB="125,211,252";
+  let W=0,H=0,mouse={x:-9999,y:-9999},tgt={x:-9999,y:-9999},rip=[],raf=0;
+  function size(){const d=Math.min(1.6,devicePixelRatio||1);W=innerWidth;H=innerHeight;
+    cv.width=W*d;cv.height=H*d;cv.style.width=W+"px";cv.style.height=H+"px";ctx.setTransform(d,0,0,d,0,0);}
+  addEventListener("resize",size);size();
+  addEventListener("pointermove",e=>{tgt={x:e.clientX,y:e.clientY}},{passive:true});
+  addEventListener("pointerdown",e=>{if(rip.length<4)rip.push({x:e.clientX,y:e.clientY,r:0,o:1})},{passive:true});
+  addEventListener("pointerleave",()=>tgt={x:-9999,y:-9999});
+  function warp(gx,gy,c,r,cols,rows){
+    const cp=Math.min(c/1.5,(cols-1-c)/1.5,1),rp=Math.min(r/1.5,(rows-1-r)/1.5,1),pin=cp*cp*rp*rp;
+    const dx=gx-mouse.x,dy=gy-mouse.y,dist=Math.hypot(dx,dy);
+    const prox=Math.max(0,1-dist/INF)*pin;let rx=0,ry=0;
+    for(const p of rip){const ddx=gx-p.x,ddy=gy-p.y,dd=Math.hypot(ddx,ddy),diff=dd-p.r;
+      if(Math.abs(diff)<55){const st=(1-Math.abs(diff)/55)*p.o*16*pin,an=Math.atan2(ddy,ddx),sg=diff<0?-1:1;
+        rx+=Math.cos(an)*st*sg*-1;ry+=Math.sin(an)*st*sg*-1;}}
+    if(dist<INF&&dist>0&&pin>0){const t=dist/INF,e=(1-t)*(1-t)*Math.min(1,dist/60),w=e*WARP*pin,an=Math.atan2(dy,dx);
+      return[gx-Math.cos(an)*w+rx,gy-Math.sin(an)*w+ry,prox];}
+    return[gx+rx,gy+ry,prox];}
+  function frame(){
+    mouse.x+=(tgt.x-mouse.x)*LERP;mouse.y+=(tgt.y-mouse.y)*LERP;
+    rip=rip.filter(p=>{p.r+=7;p.o-=.016;return p.o>0});
+    ctx.clearRect(0,0,W,H);
+    const cols=Math.ceil(W/SP)+1,rows=Math.ceil(H/SP)+1,pts=[];
+    for(let r=0;r<rows;r++){const row=[];for(let c=0;c<cols;c++)row.push(warp(c*SP,r*SP,c,r,cols,rows));pts.push(row);}
+    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const p=pts[r][c];
+      if(c<cols-1){const q=pts[r][c+1];ctx.strokeStyle="rgba("+RGB+","+(.05+p[2]*.22).toFixed(3)+")";
+        ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.stroke();}
+      if(r<rows-1){const q=pts[r+1][c];ctx.strokeStyle="rgba("+RGB+","+(.05+p[2]*.22).toFixed(3)+")";
+        ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.stroke();}
+      if(p[2]>.06){ctx.fillStyle="rgba("+RGB+","+(p[2]*.5).toFixed(3)+")";ctx.beginPath();
+        ctx.arc(p[0],p[1],1.6+p[2]*1.6,0,6.283);ctx.fill();}}
+    raf=requestAnimationFrame(frame);}
+  frame();
+  document.addEventListener("visibilitychange",()=>{if(document.hidden)cancelAnimationFrame(raf);else frame();});
+})();
+
+/* 01 · dot loader splash (kit frame data) */
+(function splash(){
+  const g=document.getElementById("dg"),sp=document.getElementById("splash");if(!g)return;
+  for(let i=0;i<49;i++)g.appendChild(document.createElement("i"));
+  const cells=[...g.children];
+  const F=[[14,7,0,8,6,13,20],[14,7,13,20,16,27,21],[14,20,27,21,34,24,28],[27,21,34,28,41,32,35],
+   [34,28,41,35,48,40,42],[34,28,41,35,48,42,46],[34,28,41,35,48,42,38],[34,28,41,35,48,30,21],
+   [34,28,41,48,21,22,14],[34,28,41,21,14,16,27],[34,28,21,14,10,20,27],[28,21,14,4,13,20,27],
+   [28,21,14,12,6,13,20],[28,21,14,6,13,20,11],[28,21,14,6,13,20,10],[14,6,13,20,9,7,21]];
+  let f=0;const iv=setInterval(()=>{cells.forEach(c=>c.classList.remove("act"));
+    F[f%F.length].forEach(i=>cells[i]&&cells[i].classList.add("act"));f++;},100);
+  setTimeout(()=>{clearInterval(iv);sp.classList.add("gone");
+    setTimeout(()=>{sp.remove();if(window.__dockPlace)window.__dockPlace(true);
+      if(window.__vtabPlace)window.__vtabPlace(true);},600);},RM?300:1750);
+})();
+
+/* staggered reveal on every view change */
+function revealStage(el){
+  if(!el||RM)return;
+  [...el.children].slice(0,14).forEach((c,i)=>{
+    if(!c.animate)return;
+    try{
+      c.getAnimations().forEach(a=>{if(a.id==="rv")a.cancel();});
+      const an=c.animate([{opacity:0,transform:"translateY(14px) scale(.985)"},{opacity:1,transform:"none"}],
+        {duration:520,delay:i*40,easing:"cubic-bezier(.22,1,.36,1)",fill:"backwards"});
+      an.id="rv";
+    }catch(e){}
+  });}
+
+/* number ticker */
+function tickTo(el,to,dur){if(!el)return;const from=parseFloat(el.textContent.replace(/[^\d.]/g,""))||0;
+  if(RM){el.textContent=to.toFixed(2);return}
+  const t0=performance.now();(function st(t){const p=Math.min(1,(t-t0)/(dur||600));
+    const e=1-Math.pow(1-p,3);el.textContent=(from+(to-from)*e).toFixed(2);
+    if(p<1)requestAnimationFrame(st);})(t0);}
+
+/* press ripple on every button */
+document.addEventListener("pointerdown",e=>{const b=e.target.closest(".btn,.chiprow button,.subnav button");
+  if(!b||RM)return;const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height)*1.4;
+  const s=document.createElement("span");s.className="rip";
+  s.style.cssText="left:"+(e.clientX-r.left)+"px;top:"+(e.clientY-r.top)+"px;width:"+d+"px;height:"+d+"px";
+  if(getComputedStyle(b).position==="static")b.style.position="relative";
+  b.appendChild(s);setTimeout(()=>s.remove(),560);});
+
+/* 15 · tilt + glare */
+function bindTilt(){document.querySelectorAll("[data-tilt]").forEach(c=>{
+  if(c._t||RM)return;c._t=1;
+  c.addEventListener("pointermove",e=>{const r=c.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+    c.style.transform="perspective(700px) rotateX("+((.5-y)*9).toFixed(2)+"deg) rotateY("+((x-.5)*11).toFixed(2)+"deg) translateZ(4px)";
+    c.style.setProperty("--mx",(x*100)+"%");c.style.setProperty("--my",(y*100)+"%");});
+  c.addEventListener("pointerleave",()=>c.style.transform="");});}
+
+/* success burst */
+function burst(){const fx=document.getElementById("fx");if(!fx)return;fx.classList.add("on");
+  const w=fx.querySelector(".wave");w.style.animation="none";void w.offsetWidth;w.style.animation="";
+  setTimeout(()=>fx.classList.remove("on"),900);}
+
+/* ── Pay + verify deposit flow (5-minute window, verify only on tap) ── */
+let depTick=null,depJob=null;
+function amountSheet(){
+  const picks=[50,100,200,500,1000,2000];
+  sheet(`<h3 style="margin:0 0 4px;font-size:1rem">${CMS.walKick||"Add funds"}</h3>
+    <p class="sub">Pick an amount or type your own.</p>
+    <div class="chips" style="margin:12px 0 4px;display:flex;flex-wrap:wrap;gap:7px">
+      ${picks.map(v=>`<button class="btn sm" data-pick="${v}" style="flex:0 0 auto">${money(v)}</button>`).join("")}
+    </div>
+    <div class="field" style="margin-top:12px"><label>Custom amount</label>
+      <input class="inp" id="amtin" type="number" inputmode="numeric" min="1" placeholder="Enter amount"></div>
+    <p class="sub" id="amthint" style="margin:0 0 10px;font-size:.72rem"></p>
+    <button class="btn cta block" id="amtgo">Continue</button>
+    <button class="btn ghost block sm" style="margin-top:8px" data-close>Cancel</button>`);
+  const inp=document.getElementById("amtin"), go=document.getElementById("amtgo"),
+        hint=document.getElementById("amthint");
+  const lo=(ADM&&ADM.pay&&ADM.pay.min)||10, hi=(ADM&&ADM.pay&&ADM.pay.max)||20000;
+  hint.textContent="Between "+money(lo)+" and "+money(hi)+".";
+  const start=v=>{
+    const n=Number(v);
+    if(!n||n<=0){toast("Enter an amount first");inp&&inp.focus();return;}
+    if(n<lo||n>hi){toast("Allowed "+money(lo)+" to "+money(hi));return;}
+    depositSheet(n);
+  };
+  document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>start(b.dataset.pick));
+  go.onclick=()=>start(inp.value);
+  if(inp)inp.onkeydown=e=>{if(e.key==="Enter")start(inp.value);};
+  setTimeout(()=>{if(inp)inp.focus();},250);
+}
+async function liveDepositSheet(a){
+  clearInterval(depTick);clearTimeout(depJob);
+  const d=await apiTry("/api/deposit/create",{amount:Number(a)});
+  if(!d)return;
+  const mins=d.window||5;
+  let left=Math.max(0,Math.round((new Date(d.expires_at)-new Date())/1000))||mins*60;
+  const total=mins*60;
+  let done=false,busy=false;
+  sheet(`<h3 style="margin:0 0 4px;font-size:1rem">${CMS.sheetTitle} ${money(d.amount)}</h3>
+    <p class="sub">${CMS.sheetSub.replace("{m}",mins)}</p>
+    ${d.qr?`<div class="qr" style="padding:0;overflow:hidden"><img src="${d.qr}" alt="UPI QR" style="width:100%;display:block"></div>`:""}
+    <div class="kv"><span>UPI ID</span><b>${esc(d.upi||"")}</b></div>
+    <div class="kv"><span>Payee</span><b>${esc(d.payee||"")}</b></div>
+    <div class="kv"><span>Amount</span><b>${money(d.amount)}</b></div>
+    ${d.bonus?`<div class="kv"><span>Bonus</span><b>+${money(d.bonus)}</b></div>`:""}
+    <div class="kv"><span>Note / reference</span><b>${esc(d.code)}</b></div>
+    <div class="kv"><span>Expires in</span><b id="dpcd">${Math.floor(left/60)}:${String(left%60).padStart(2,"0")}</b></div>
+    <div class="timerbar" id="dpbar"><i style="width:100%"></i></div>
+    <div class="steps" id="dsteps">
+      <div class="step on"><i>1</i>${CMS.step1}</div>
+      <div class="step" id="s2"><i>2</i>${CMS.step2}</div>
+      <div class="step" id="s3"><i>3</i>${CMS.step3}</div>
+      <div class="step" id="s4"><i>4</i>${CMS.step4}</div>
+    </div>
+    <div class="btnrow" style="margin-top:8px">
+      <button class="btn" id="dpay">🏦 Copy UPI ID</button>
+      <button class="btn cta" id="dver">${STORE.autocheck===false?"✅ I have paid":"✅ "+CMS.verifyBtn}</button></div>
+    ${STORE.autocheck===false?"":`<button class="btn soft block sm" id="dutr" style="margin-top:8px">🧾 Send transaction no.</button>`}
+    <button class="btn ghost block sm" style="margin-top:8px" data-close>Close</button>`);
+  const g=id=>document.getElementById(id);
+  const payB=g("dpay"),verB=g("dver"),utrB=g("dutr");
+  const alive=()=>g("dpcd")&&document.getElementById("sheet").classList.contains("open");
+  function expire(){
+    clearInterval(depTick);
+    if(!alive())return;
+    g("dpcd").textContent="0:00";g("dpbar").classList.add("low");g("dpbar").firstChild.style.width="0%";
+    verB.disabled=true;utrB.disabled=true;verB.textContent="Expired";
+    payB.className="btn";payB.textContent="New Request";payB.onclick=()=>depositSheet(a);
+    toast(CMS.msgExpired);
+  }
+  depTick=setInterval(()=>{
+    if(!alive()){clearInterval(depTick);return;}
+    left--;
+    g("dpcd").textContent=Math.max(0,Math.floor(left/60))+":"+String(Math.max(0,left%60)).padStart(2,"0");
+    g("dpbar").firstChild.style.width=(Math.max(0,left)/total*100)+"%";
+    g("dpbar").classList.toggle("low",left<=60);
+    if(left<=0)expire();
+  },1000);
+  if(payB)payB.onclick=()=>{
+    if(done)return;
+    g("s2").className="step on";g("s3").className="step run";
+    verB.classList.remove("glass");verB.classList.add("cta");
+    try{navigator.clipboard&&navigator.clipboard.writeText(d.upi||"");}catch(e){}
+    toast("UPI ID copied: "+(d.upi||""));
+  };
+  if(verB)verB.onclick=async()=>{
+    if(done||busy||left<=0)return;
+    if(STORE.autocheck===false){          /* no automatic checking — collect proof */
+      sheet(`<h3 style="margin:0 0 4px;font-size:1rem">Send your payment proof</h3>
+        <p class="sub">A screenshot of the successful payment and the UTR.</p>
+        <div class="field" style="margin-top:12px"><label>Screenshot</label>
+          <input class="inp" id="pfshot" type="file" accept="image/*"></div>
+        <div class="field"><label>UTR / transaction number</label>
+          <input class="inp" id="pfutr" inputmode="numeric" placeholder="12 digits"></div>
+        <button class="btn cta block" id="pfgo">Submit for review</button>
+        <button class="btn ghost block sm" style="margin-top:8px" data-close>Cancel</button>`);
+      document.getElementById("pfgo").onclick=async()=>{
+        const f=document.getElementById("pfshot");
+        const u=(document.getElementById("pfutr").value||"").replace(/\D/g,"");
+        if(u.length<6){toast("Enter the UTR from your payment app");return;}
+        const file=(f&&f.files&&f.files[0])||null;
+        let shot="";
+        if(file){
+          if(file.size>8*1024*1024){toast("That image is too large (8 MB max)");return;}
+          shot=await new Promise(res=>{const rd=new FileReader();
+            rd.onload=()=>res(String(rd.result||""));rd.onerror=()=>res("");
+            rd.readAsDataURL(file);});
+        }
+        const btn=document.getElementById("pfgo");btn.disabled=true;btn.textContent="Sending…";
+        const rr=await apiTry("/api/deposit/claim",{id:d.id,utr:u,shot:shot});
+        btn.disabled=false;btn.textContent="Submit for review";
+        if(!rr)return;
+        closeSheet();toast("Sent — we will confirm it shortly");
+        await refresh();
+      };
+      return;
+    }
+    busy=true;verB.disabled=true;verB.textContent="Checking…";g("s3").className="step run";
+    const r=await apiTry("/api/deposit/verify",{id:d.id});
+    busy=false;
+    if(!alive())return;
+    verB.disabled=false;verB.textContent=CMS.verifyBtn;
+    if(!r)return;
+    if(r.status==="completed"){
+      done=true;clearInterval(depTick);
+      g("s3").className="step on";g("s4").className="step on";
+      if(typeof r.balance==="number")BAL=r.balance;
+      syncBal();burst();toast(CMS.msgOk);
+      setTimeout(()=>{closeSheet();refresh();},900);
+    }else if(r.status==="review"){
+      g("s3").className="step on";toast("Payment sent for checking — we will confirm it shortly");
+    }else if(r.status==="expired"){
+      expire();
+    }else{
+      toast(CMS.msgNone);
+    }
+  };
+  if(utrB)utrB.onclick=async()=>{
+    const v=prompt("Enter the 12-digit UTR from your payment app");
+    if(!v)return;
+    const r=await apiTry("/api/deposit/utr",{id:d.id,utr:v});
+    if(r)toast("Thanks — we are checking your payment");
+  };
+}
+function depositSheet(a){
+  if(LIVE)return liveDepositSheet(a);
+  clearInterval(depTick);clearTimeout(depJob);
+  const code=(CMS.payPrefix||"PAY")+Math.floor(1000+Math.random()*8999);
+  const mins=Math.max(1,parseInt(CMS.payWindow,10)||5), total=mins*60;
+  let left=total,paid=false,done=false,busy=false;
+  sheet(`<h3 style="margin:0 0 4px;font-size:1rem">${CMS.sheetTitle} ${money(a)}</h3>
+    <p class="sub">${CMS.sheetSub.replace("{m}",mins)}</p>
+    <div class="qr">QR CODE<br>(generated by bot)</div>
+    <div class="kv"><span>UPI ID</span><b>${esc(STORE.upi||"not set yet")}</b></div>
+    <div class="kv"><span>Payee</span><b>${esc(STORE.payee||"—")}</b></div>
+    <div class="kv"><span>Amount</span><b>${money(a)}</b></div>
+    <div class="kv"><span>Note / reference</span><b>${code}</b></div>
+    <div class="kv"><span>Expires in</span><b id="dpcd">${mins}:00</b></div>
+    <div class="timerbar" id="dpbar"><i style="width:100%"></i></div>
+    <div class="steps" id="dsteps">
+      <div class="step on"><i>1</i>${CMS.step1}</div>
+      <div class="step" id="s2"><i>2</i>${CMS.step2}</div>
+      <div class="step" id="s3"><i>3</i>${CMS.step3}</div>
+      <div class="step" id="s4"><i>4</i>${CMS.step4}</div>
+    </div>
+    <div class="btnrow" style="margin-top:8px">
+      <button class="btn cta" id="dpay">${CMS.payBtn}</button>
+      <button class="btn glass" id="dver">${CMS.verifyBtn}</button></div>
+    <button class="btn soft block sm" id="dutr" style="margin-top:8px">${CMS.utrBtn}</button>
+    <button class="btn ghost block sm" style="margin-top:8px" data-close>Close</button>`);
+  const g=id=>document.getElementById(id);
+  const payB=g("dpay"),verB=g("dver"),utrB=g("dutr");
+  function fmt(n){return Math.floor(n/60)+":"+String(n%60).padStart(2,"0");}
+  function alive(){return g("dpcd")&&document.getElementById("sheet").classList.contains("open");}
+  function expire(){
+    clearInterval(depTick);clearTimeout(depJob);
+    if(!alive())return;
+    g("dpcd").textContent="0:00";g("dpbar").classList.add("low");g("dpbar").firstChild.style.width="0%";
+    payB.disabled=true;verB.disabled=true;utrB.disabled=true;
+    g("s2").className="step";g("s3").className="step";
+    verB.textContent="Expired";payB.className="btn";payB.disabled=false;payB.textContent="New Request";
+    payB.onclick=()=>depositSheet(a);
+    toast(CMS.msgExpired);
+  }
+  depTick=setInterval(()=>{
+    if(!alive()){clearInterval(depTick);return;}
+    left--;g("dpcd").textContent=fmt(Math.max(0,left));
+    g("dpbar").firstChild.style.width=(Math.max(0,left)/total*100)+"%";
+    g("dpbar").classList.toggle("low",left<=60);
+    if(left<=0)expire();
+  },1000);
+  if(payB)payB.onclick=()=>{
+    if(done)return;
+    paid=true;g("s2").className="step on";g("s3").className="step run";
+    payB.textContent="Pay Again";verB.classList.remove("glass");verB.classList.add("cta");
+    toast("Opening your UPI app — pay "+money(a)+", then tap Verify");
+  };
+  verB.onclick=()=>{
+    if(done||busy||left<=0)return;
+    busy=true;verB.disabled=true;verB.textContent="Checking…";
+    g("s3").className="step run";toast(CMS.msgChecking);
+    depJob=setTimeout(()=>{
+      busy=false;
+      if(!alive())return;
+      if(paid){
+        done=true;clearInterval(depTick);
+        g("s3").className="step on";g("s4").className="step on";
+        verB.textContent="Verified";
+        BAL+=Number(a);syncBal();burst();toast(CMS.msgOk);
+        setTimeout(closeSheet,1200);
+      }else{
+        g("s3").className="step";verB.disabled=false;verB.textContent=CMS.verifyBtn;
+        toast(CMS.msgNone);
+      }
+    },1700);
+  };
+  utrB.onclick=()=>{if(left>0)toast("Thanks — we are checking your payment");};
+}
+function syncBal(){tickTo(document.getElementById("bal"),BAL);tickTo(document.getElementById("bal2"),BAL);}
+document.addEventListener("click",e=>{const c=e.target.closest("[data-confirm]");if(!c)return;
+  const p=+c.dataset.confirm;if(BAL<p){toast("Not enough balance — add funds");return}
+  BAL-=p;syncBal();closeSheet();burst();toast("Purchased — OTP is in Orders");});
+
+/* ── ADMIN ── */
+let ATAB="dash";
+document.querySelectorAll("#asub button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#asub button").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+  ATAB=b.dataset.a;renderAdmin();window.scrollTo(0,0);});
+function renderAdmin(){
+  const st=document.getElementById("astage");
+  if(!adminAllowed()){st.innerHTML='<div class="card" style="margin:16px;text-align:center">'
+    +'<h3 style="margin:0 0 6px">Admins only</h3>'
+    +'<p class="sub" style="margin:0">This panel is not available on your account.</p></div>';return;}
+  st.innerHTML=({dash:aDash,channels:aChannels,logs:aLogs,pay:aPay,content:aContent,features:aFeatures,market:aMarket,analytics:aAnalytics,security:aSecurity,stock:aStock,orders:aOrders,users:aUsers,settings:aSettings})[ATAB]();
+  bindAdmin();revealStage(st);bindTilt();if(window.__vtabPlace)requestAnimationFrame(window.__vtabPlace);}
+
+function aDash(){
+  return `<div class="kpis">${[["Revenue today",money(ADM.kpi.rev)],["Orders today",admNum(ADM.kpi.orders)],
+      ["Users",admNum(ADM.kpi.users)],["Auto-verified",admNum(ADM.kpi.auto)]]
+    .map(([k,v])=>`<div class="kpi"><small>${k}</small><b>${v}</b></div>`).join("")}</div>
+   <div class="card tight" style="display:flex;align-items:center;gap:10px">
+     <span class="pill on"><i class="dot"></i>Payment checking</span>
+     <div style="flex:1;min-width:0;font-size:.74rem;color:var(--tx2)">${ADM.pay.gmail_set?"Gmail watcher on · "+ADM.pay.pending+" awaiting review":"Gmail not set — deposits go to manual review"}</div>
+     <button class="btn xs soft" data-a-go="pay">Open</button></div>
+   <div class="card"><h3>Last 7 days</h3><p class="sub">Revenue trend</p>
+     <div style="display:flex;align-items:flex-end;gap:7px;height:96px;margin-top:14px">
+       ${ADM.bars.map(h=>`<i style="flex:1;height:${h}%;border-radius:7px 7px 3px 3px;background:var(--pillgrad);display:block"></i>`).join("")}</div></div>
+   ${G("digest",`<div class="card tight" style="display:flex;align-items:center;gap:10px">
+     <span class="pill on"><i class="dot"></i>Digest</span>
+     <div style="flex:1;min-width:0;font-size:.74rem;color:var(--tx2)">Next summary at 23:30</div>
+     <button class="btn xs soft" data-a-go="analytics">View</button></div>`)}
+   ${G("sandbox",`<div class="card tight" style="display:flex;align-items:center;gap:10px">
+     <span class="pill">Sandbox</span>
+     <div style="flex:1;min-width:0;font-size:.74rem;color:var(--tx2)">${ADM.settings.sandbox?"Test mode is ON":"Test mode is off — real money is live"}</div>
+     <div class="tg${(ADM.sw&&ADM.sw.sandbox)?" on":""}" data-setting="sandbox"></div></div>`)}
+   <div class="sec"><h2>Quick Actions</h2></div>
+   <div class="grid">
+     <button class="btn soft" data-qa="broadcast">Broadcast</button>
+     <button class="btn soft" data-qa="stock">Add Stock</button>
+     <button class="btn soft" data-qa="flash">Flash Sale</button>
+     <button class="btn soft" data-qa="backup">Backup DB</button></div>`;
+}
+
+function aChannels(){
+  return `<div class="card"><h3>Force-join channels</h3>
+    <p class="sub">Add or remove any number of channels. Saved to the database — instant, no restart.</p>
+    <div class="field" style="margin-top:13px"><label>Channel link, @username or -100 ID</label>
+      <input class="inp" id="ch-in" placeholder="@channel · t.me/+invite · -100…"></div>
+    <div class="field"><label>Type</label>
+      <select class="inp" id="ch-type"><option value="1">Required — must join</option><option value="0">Optional — just suggested</option></select></div>
+    <div class="btnrow"><button class="btn" id="ch-add">${ic("plus")} Add Channel</button>
+    <button class="btn ghost" data-misc="channeltest">Test Bot</button></div></div>
+  <div class="sec"><h2>Active (${CHANNELS.length})</h2></div>
+  ${CHANNELS.map((c,i)=>`<div class="card tight">
+     <div style="display:flex;align-items:center;gap:10px">
+       <div class="flag">${ic("send")}</div>
+       <div style="flex:1;min-width:0"><b style="font-size:.83rem;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.name)}</b>
+         <small style="color:var(--tx2);font-size:.69rem">${esc(c.handle)} · ${c.members} members</small></div>
+       <div class="tg sm ${c.on?"on":""}" data-chon="${c.id}"></div></div>
+     <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+       <button class="btn xs ${c.req?"":"soft"}" data-chreq="${c.id}">${c.req?"Required":"Optional"}</button>
+       <button class="btn xs soft" data-copy="text" data-copy-value="${esc(c.handle)}">Copy</button>
+       <button class="btn xs bad" style="margin-left:auto" data-chdel="${c.id}">Remove</button></div></div>`).join("")
+   ||'<div class="card"><p class="sub">No channels — users can enter freely.</p></div>'}`;
+}
+
+function aLogs(){
+  const opts=id=>LOGCH.map(l=>`<option value="${l.id}" ${l.id===id?"selected":""}>${esc(l.name)}</option>`).join("");
+  return `<div class="card"><div class="swap" style="padding-top:0">
+      <div class="t">Logging master switch<small>Off = the bot posts no logs anywhere</small></div>
+      <div class="tg ${LOGS_MASTER?"on":""}" data-master></div></div></div>
+   <div class="card"><h3>Log channels</h3><p class="sub">Add as many as you like. The starred one is the preferred/default channel.</p>
+     <div class="field" style="margin-top:12px"><label>Channel link, @username or -100 ID</label>
+       <input class="inp" id="lg-in" placeholder="@logs_channel · -100…"></div>
+     <div class="btnrow"><button class="btn" id="lg-add">${ic("plus")} Add Log Channel</button>
+     <button class="btn soft" data-misc="logtest">Send Test</button></div></div>
+   ${LOGCH.map(l=>`<div class="card tight" style="display:flex;align-items:center;gap:10px">
+      <div class="star ${l.primary?"on":""}" data-lgstar="${l.id}">${ic("star")}</div>
+      <div style="flex:1;min-width:0"><b style="font-size:.83rem;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.name)}</b>
+        <small style="color:var(--tx2);font-size:.69rem">${esc(l.handle)}${l.primary?" · preferred":""}</small></div>
+      <div class="tg sm ${l.on?"on":""}" data-lgon="${l.id}"></div>
+      <button class="btn xs bad" data-lgdel="${l.id}">Remove</button></div>`).join("")
+    ||'<div class="card"><p class="sub">No log channels yet.</p></div>'}
+   <div class="sec"><h2>Events &amp; routing</h2><a data-ev-all>Toggle all</a></div>
+   <div class="card">${EVENTS.map((e,i)=>`
+     <div class="swap"><div class="t" style="flex:1">${esc(e.k)}
+       <small><select class="inp" style="height:30px;font-size:.7rem;margin-top:5px;max-width:190px" data-evch="${i}" ${e.on?"":"disabled"}>${opts(e.ch)}</select></small></div>
+       <div class="tg ${e.on?"on":""}" data-evon="${i}"></div></div>`).join("")}</div>
+   <div class="card"><h3>Recent log output</h3>
+     ${((ADM.logfeed&&ADM.logfeed.length)?ADM.logfeed.map(l=>[l.what,l.where,l.when]):[])
+       .map(([t,c,w])=>`<div class="kv"><span>${t}</span><b style="font-size:.7rem">${c} · ${w}</b></div>`).join("")}</div>`;
+}
+
+function aPay(){
+  return `<div class="card"><div class="swap" style="padding-top:0">
+      <div class="t">Gmail auto-verify<small>${ADM.pay.gmail_set?"Reading "+esc(ADM.pay.gmail):"Not configured — deposits queue for review"}</small></div>
+      <div class="tg${(ADM.sw&&ADM.sw.gmail_enabled)?" on":""}" data-setting="gmail_enabled"></div></div>
+     <div class="swap"><div class="t">Auto-approve small deposits<small>Skip review below the threshold</small></div>
+     <div class="tg${(ADM.sw&&ADM.sw.gmail_enabled)?" on":""}" data-setting="gmail_enabled"></div></div>
+     <div class="swap"><div class="t">Manual UTR fallback<small>Let users submit a UTR if auto-verify misses</small></div>
+     <div class="tg${(ADM.sw&&ADM.sw.autodep)?" on":""}" data-setting="autodep"></div></div>
+     <div class="swap"><div class="t">Verify only when user taps Verify<small>No background checking — saves Gmail quota</small></div>
+     <div class="tg${(ADM.sw&&ADM.sw.utr_fallback)?" on":""}" data-setting="utr_fallback"></div></div></div>
+   <div class="card"><h3>UPI</h3><p class="sub">${ADM.pay.upi?"In use by every payment request.":"Not set yet — top-ups are disabled until you add it."}</p>
+     <div class="field" style="margin-top:12px"><label>UPI ID</label>
+       <input class="inp" data-set="upi_id" value="${esc(ADM.pay.upi||"")}" placeholder="yourhandle@bank"></div>
+     <div class="field"><label>Payee name</label>
+       <input class="inp" data-set="upi_name" value="${esc(ADM.pay.payee||"")}" placeholder="Your Store"></div>
+     <div class="field"><label>Note prefix</label>
+       <input class="inp" data-set="pay_prefix" value="${esc(ADM.pay.prefix||"PAY")}"></div>
+     <div class="field"><label>Payment window (minutes)</label>
+       <input class="inp" data-set="pay_window" value="${ADM.pay.window}"></div>
+     <div class="field"><label>Minimum deposit</label>
+       <input class="inp" data-set="min_deposit" value="${ADM.pay.min}"></div>
+     <div class="field"><label>Maximum deposit</label>
+       <input class="inp" data-set="max_deposit" value="${ADM.pay.max}"></div>
+     <div class="field"><label>Auto-approve under (0 = off)</label>
+       <input class="inp" data-set="autodep_max" value="${ADM.pay.autodep}"></div>
+     <div class="field"><label>Gmail address</label>
+       <input class="inp" data-set="gmail_id" value="${esc(ADM.pay.gmail||"")}" placeholder="store@gmail.com"></div>
+     <div class="field"><label>Gmail app password</label>
+       <input class="inp" data-set="gmail_pass" type="password" placeholder="${ADM.pay.gmail_set?"saved — type to replace":"not set"}"></div>
+     <div class="kv"><span>Waiting for review</span><b>${ADM.pay.pending}</b></div></div>
+   ${G("crypto",`<div class="card"><h3>Crypto wallet</h3><p class="sub">USDT-TRC20 deposits, auto-confirmed on-chain.</p>
+     <div class="field" style="margin-top:10px"><label>Wallet address</label><input class="inp" placeholder="T…"></div>
+     <div class="field"><label>Confirmations required</label><input class="inp" value="1"></div>
+     </div>`)}
+   ${G("upiRotate",`<div class="card"><h3>UPI rotation</h3><p class="sub">Spread load and survive a frozen handle.</p>
+     ${[["handle1@fam","Active"],["handle2@fam","Active"],["handle3@upi","Paused"]]
+       .map(([h,st])=>`<div class="kv"><span>${h}</span><b><span class="pill ${st==="Active"?"on":"off"}">${st}</span></b></div>`).join("")}
+     <div class="field" style="margin-top:10px"><div style="display:flex;gap:7px">
+       <input class="inp" placeholder="another@upi"><button class="btn sm" style="flex:0 0 auto" id="upiadd">Add</button></div></div></div>`)}
+   ${G("depBonus",`<div class="card"><h3>Deposit bonus</h3>
+     <div class="field" style="margin-top:8px"><label>₹500 and above (%)</label><input class="inp" value="5"></div>
+     <div class="field"><label>₹1000 and above (%)</label><input class="inp" value="8"></div>
+     <div class="field"><label>₹2000 and above (%)</label><input class="inp" value="12"></div></div>`)}
+   ${G("depLimits",`<div class="card"><h3>Deposit limits</h3>
+     <div class="field" style="margin-top:8px"><label>Minimum (₹)</label><input class="inp" value="10"></div>
+     <div class="field"><label>Maximum (₹)</label><input class="inp" value="20000"></div></div>`)}
+   ${G("wrongAmt",`<div class="card"><div class="swap" style="padding-top:0"><div class="t">Wrong-amount handling<small>Credit what was actually paid and flag it</small></div>
+     <div class="tg${(ADM.sw&&ADM.sw.verify_on_tap)?" on":""}" data-setting="verify_on_tap"></div></div></div>`)}
+   ${G("splitPay",`<div class="card"><div class="swap" style="padding-top:0"><div class="t">Split payment<small>Wallet balance plus UPI in one checkout</small></div>
+     <div class="tg${FEAT.wrongAmt?" on":""}" data-feat="wrongAmt"></div></div></div>`)}
+   ${G("autoRefund",`<div class="card"><h3>Auto-refund</h3>
+     <div class="field" style="margin-top:8px"><label>Warranty window (minutes)</label><input class="inp" value="10"></div>
+     <div class="kv"><span>Refunded today</span><b>₹105.00 · 3 orders</b></div></div>`)}
+   <div class="card"><h3>Gmail account</h3><p class="sub">The Gmail that receives your FamPay payment mails. Nothing is stored in code.</p>
+     <div class="field" style="margin-top:12px"><label>Gmail ID</label><input class="inp" placeholder="yourstore@gmail.com"></div>
+     <div class="field"><label>Gmail password</label><input class="inp" type="password" placeholder="••••••••••••"></div>
+     <div class="btnrow"><button class="btn" data-admin-act="gmailtest">Test Gmail</button>
+     </div>
+     <p class="sub" style="margin-top:10px">Tip: if 2-step verification is on, paste a Google App Password here instead of your normal one.</p></div>
+   <div class="sec"><h2>Recent auto-verifications</h2></div>
+   ${(ADM.deposits||[]).length?ADM.deposits.map(d=>`<div class="card tight" style="display:flex;align-items:center;gap:10px">
+       <div class="flag">${ic("wallet")}</div>
+       <div style="flex:1;min-width:0"><b style="font-size:.82rem">${money(d.amt)} · ${esc(d.user)}</b><br>
+         <small style="color:var(--tx2);font-size:.69rem">${esc(d.utr||"no reference yet")}</small></div>
+       <span class="pill ${d.st==="Completed"?"on":"hot"}">${esc(d.st)}</span>
+       ${d.st==="Completed"?"":`<button class="btn xs" data-dep-ok="${d.id}">Approve</button>`}</div>`).join("")
+     :'<div class="card tight"><p class="sub" style="margin:0">No deposits yet.</p></div>'}`;
+}
+
+function aContent(){
+  return `<div class="card"><h3>Edit app text</h3>
+     <p class="sub">Every word users see — change it here and the store updates instantly.</p>
+     <div class="msearch" style="margin-top:12px"><div class="fieldwrap">${ic("search")}<input id="cq" placeholder="Find text to edit…"></div>
+       <button class="btn sm soft" id="cmsreset">Reset</button></div>
+     <p class="sub" style="margin-top:10px">Use &lt;br&gt; for a line break, &lt;b&gt;word&lt;/b&gt; for bold. {n} = live country count, {m} = payment minutes.</p></div>
+   ${CMSMETA.map(([grp,rows])=>`<div class="card cmsgrp"><h3>${grp}</h3>
+     ${rows.map(([k,lbl])=>`<div class="field cmsrow" data-f="${esc((lbl+" "+CMS[k]+" "+grp).toLowerCase())}">
+        <label>${lbl}</label>
+        <textarea class="inp" rows="${CMS[k].length>40?2:1}" data-cms="${k}">${esc(CMS[k])}</textarea></div>`).join("")}
+   </div>`).join("")}
+   <div class="card tight" style="display:flex;align-items:center;gap:10px">
+     <span class="pill on"><i class="dot"></i>Live edit</span>
+     <div style="flex:1;min-width:0;font-size:.74rem;color:var(--tx2)">Changes apply to the Store tab straight away</div>
+     </div>`;
+}
+
+function aFeatures(){
+  const on=Object.values(FEAT).filter(Boolean).length,tot=Object.keys(FEAT).length;
+  return `<div class="card"><h3>Feature switches</h3>
+     <p class="sub">Turn anything off and it disappears from the app completely — no buttons, no menus, no leftovers.</p>
+     <div class="kv"><span>Enabled</span><b id="fcount">${on} of ${tot}</b></div>
+     <div class="msearch" style="margin-top:12px"><div class="fieldwrap">${ic("search")}<input id="fq" placeholder="Search features…"></div>
+       <button class="btn sm soft" id="fall">All on</button></div>
+     <div class="btnrow" style="margin-top:8px"><button class="btn sm ghost" id="fnone">All off</button>
+       <button class="btn sm soft" id="freset">Reset</button></div></div>
+   ${FGROUPS.map(([grp,rows])=>`<div class="card fgrp"><h3>${grp}</h3>
+     ${rows.map(([k,l,d])=>`<div class="fcard frow" data-f="${esc((l+" "+d+" "+grp).toLowerCase())}">
+        <div class="t"><b>${l}</b><small>${d}</small></div>
+        <div class="tg ${FEAT[k]?"on":""}" data-feat="${k}"></div></div>`).join("")}
+   </div>`).join("")}
+   <div class="card tight" style="display:flex;align-items:center;gap:10px">
+     <span class="pill on"><i class="dot"></i>Live</span>
+     <div style="flex:1;min-width:0;font-size:.74rem;color:var(--tx2)">Switches apply to the Store tab instantly</div>
+     </div>`;
+}
+
+function aMarket(){
+  return `${G("coupons",`<div class="card"><h3>Coupons</h3><p class="sub">Percentage off at checkout.</p>
+     ${(ADM.coupons&&ADM.coupons.length)?ADM.coupons.map(c=>`<div class="kv">
+       <span><b style="color:var(--tx)">${esc(c.code)}</b> · ${c.percent}% · ${c.used}/${c.max||"∞"}</span>
+       <b><span class="pill ${c.active?"on":"off"}">${c.active?"Active":"Off"}</span></b></div>`).join("")
+       :'<p class="sub" style="margin:0">No coupons yet.</p>'}
+     <div class="field" style="margin-top:12px"><label>New code</label>
+       <div style="display:flex;gap:7px"><input class="inp" id="cpcode" placeholder="NEWYEAR">
+       <input class="inp" id="cppct" placeholder="%" style="width:66px">
+       <button class="btn sm" style="flex:0 0 auto" id="cpadd">Add</button></div></div></div>`)}
+   ${G("flashSale",`<div class="card"><h3>Flash sale scheduler</h3><p class="sub">Starts, announces and ends by itself.</p>
+     <div class="field" style="margin-top:12px"><label>Discount (%)</label><input class="inp" value="20"></div>
+     <div class="field"><label>Starts</label><input class="inp" value="Today 18:00"></div>
+     <div class="field"><label>Ends</label><input class="inp" value="Today 23:00"></div>
+     <button class="btn block" id="flashgo">Start Flash Sale</button></div>`)}
+   ${G("schedBroadcast",`<div class="card"><h3>Scheduled broadcast</h3><p class="sub">Queue it and target a segment.</p>
+     <div class="field" style="margin-top:12px"><label>Segment</label>
+       <select class="inp"><option>Everyone</option><option>Buyers only</option><option>Never bought</option><option>Big spenders (₹1000+)</option><option>Inactive 30 days</option></select></div>
+     <div class="field"><label>Send at</label><input class="inp" value="Tomorrow 10:00"></div>
+     <div class="field"><label>Message</label><textarea class="inp" rows="2" placeholder="Write your broadcast…"></textarea></div>
+     <div class="btnrow"><button class="btn" id="bcgo">Send Broadcast</button>
+       </div></div>`)}
+   ${G("winback",`<div class="card"><div class="swap" style="padding-top:0"><div class="t">Win-back messages<small>Auto-DM users inactive for 7 and 30 days</small></div>
+     <div class="tg${FEAT.splitPay?" on":""}" data-feat="splitPay"></div></div>
+     <div class="field"><label>Discount offered (%)</label><input class="inp" value="10"></div></div>`)}
+   ${G("abandonRemind",`<div class="card tight" style="display:flex;align-items:center;gap:10px">
+     <span class="pill on"><i class="dot"></i>Reminders</span>
+     <div style="flex:1;min-width:0;font-size:.74rem;color:var(--tx2)">4 unfinished payments nudged today</div>
+     </div>`)}
+   ${G("loyalty",`<div class="card"><h3>Loyalty points</h3>
+     <div class="field" style="margin-top:8px"><label>Points per ₹10 spent</label><input class="inp" value="1"></div>
+     <div class="field"><label>Points needed for ₹10</label><input class="inp" value="100"></div>
+     <button class="btn sm" style="flex:0 0 auto" id="winbacksave">Save</button></div>`)}
+   ${anyF("refDash","refL2")?`<div class="card"><h3>Referral payouts</h3>
+     <div class="field" style="margin-top:8px"><label>Level 1 commission (%)</label><input class="inp" value="5"></div>
+     ${G("refL2",`<div class="field"><label>Level 2 commission (%)</label><input class="inp" value="1"></div>`)}
+     <div class="kv"><span>Paid out this month</span><b>₹3,240</b></div></div>`:""}
+   ${G("salesFeed",`<div class="card"><div class="swap" style="padding-top:0"><div class="t">Auto-post sales to channel<small>${FEED.length?esc(FEED[0][1]+" sold · "+FEED[0][3]):"no sales yet"}</small></div>
+     <div class="tg${FEAT.winback?" on":""}" data-feat="winback"></div></div></div>`)}
+   ${G("leaderboard",`<div class="card"><h3>Leaderboard prize</h3>
+     <div class="field" style="margin-top:8px"><label>Weekly prize (₹)</label><input class="inp" value="500"></div>
+     <button class="btn sm" style="flex:0 0 auto" id="prizesave">Save</button></div>`)}`;
+}
+
+function aAnalytics(){
+  const week=(ADM.series||[]).reduce((a,b)=>a+b,0);
+  const avg=ADM.kpi.orders?ADM.kpi.rev/ADM.kpi.orders:0;
+  return `${G("revChart",`<div class="card"><h3>Revenue</h3><p class="sub">Last 7 days · ${money(week)} total</p>
+     <div class="bars">${ADM.bars.map(h=>`<i style="height:${h}%"></i>`).join("")}</div>
+     <div class="kpis" style="margin-top:14px">${[["Today",money(ADM.kpi.rev)],["This month",money(ADM.market.month)],["Avg order",money(avg)]]
+       .map(([k,v])=>`<div class="kpi"><small>${k}</small><b>${v}</b></div>`).join("")}</div></div>`)}
+   ${G("funnel",`<div class="card"><h3>Conversion funnel</h3><p class="sub">Where people drop off</p>
+     <div class="funnel">${(()=>{const f=ADM.analytics.funnel,t=Math.max(1,f.users);
+       return [["Started bot",f.users,100],["Deposited",f.dep,Math.round(f.dep/t*100)],["Bought",f.buy,Math.round(f.buy/t*100)]]
+       .map(([k,v,w])=>`<div><i style="width:${Math.max(4,w)}%"></i><span style="white-space:nowrap">${k} · <b>${v}</b></span></div>`).join("");})()}</div></div>`)}
+   ${G("profitRep",`<div class="card"><h3>Per-country profit</h3>
+     ${ADM.analytics.country.length?ADM.analytics.country.map(([c,n,sum])=>`<div class="kv"><span>${esc(c)} · ${n} sold</span><b style="color:var(--ok)">${money(sum)}</b></div>`).join("")
+       :'<p class="sub" style="margin:0">No sales yet.</p>'}
+     <button class="btn block soft" style="margin-top:12px" data-admin-act="export">Export CSV</button></div>`)}
+   ${G("clv",`<div class="card"><h3>Customer value</h3>
+     ${ADM.users.length?ADM.users.slice(0,5).map(u=>`<div class="kv"><span><b style="color:var(--tx)">${esc(u.name)}</b> · ${u.orders} orders</span>
+         <b>${money(u.spent)} <span class="pill ${u.spent>0?"on":"hot"}">${u.spent>0?"active":"no spend"}</span></b></div>`).join("")
+       :'<p class="sub" style="margin:0">No customers yet.</p>'}</div>`)}
+   ${G("digest",`<div class="card"><div class="swap" style="padding-top:0"><div class="t">Daily digest<small>End-of-day summary to the admin chat</small></div>
+     <div class="tg${FEAT.salesFeed?" on":""}" data-feat="salesFeed"></div></div>
+     <div class="field"><label>Send at</label><input class="inp" value="23:30"></div></div>`)}`;
+}
+
+function aSecurity(){
+  return `${G("rateLimit",`<div class="card"><h3>Rate limiting</h3><p class="sub">Stops one user hammering the bot.</p>
+     <div class="field" style="margin-top:10px"><label>Max actions per minute</label><input class="inp" value="20"></div>
+     <div class="field"><label>Cooldown after limit (s)</label><input class="inp" value="60"></div></div>`)}
+   ${G("multiAcc",`<div class="card"><div class="swap" style="padding-top:0"><div class="t">Multi-account detection<small>Flags referral farming patterns</small></div>
+     <div class="tg${FEAT.multiAcc?" on":""}" data-feat="multiAcc"></div></div>
+     <div class="kv"><span>Flagged this week</span><b>7 accounts</b></div>
+     <button class="btn block soft" style="margin-top:10px" data-a-go="orders">Review Flagged</button></div>`)}
+   ${G("velocity",`<div class="card"><div class="swap" style="padding-top:0"><div class="t">Purchase velocity alerts<small>Catches stolen top-ups</small></div>
+     <div class="tg${FEAT.velocity?" on":""}" data-feat="velocity"></div></div>
+     <div class="field"><label>Alert above N buys / 10 min</label><input class="inp" value="5"></div></div>`)}
+   ${G("admin2fa",`<div class="card"><h3>Admin 2FA</h3><p class="sub">Required before balance edits, broadcasts and wipes.</p>
+     <div class="field" style="margin-top:10px"><label>Method</label><select class="inp"><option>PIN</option><option>TOTP app</option></select></div>
+     <button class="btn xs" data-feat="admin2fa">Set Up</button></div>`)}
+   ${G("autoBan",`<div class="card"><h3>Auto-ban rules</h3>
+     <div class="swap"><div class="t">Chargeback<small>Ban instantly</small></div>
+     <div class="tg${(ADM.sw&&ADM.sw.ban_chargeback)?" on":""}" data-setting="ban_chargeback"></div></div>
+     <div class="swap"><div class="t">Fake UTR submitted<small>Ban after 2 attempts</small></div>
+     <div class="tg${(ADM.sw&&ADM.sw.ban_fake_utr)?" on":""}" data-setting="ban_fake_utr"></div></div>
+     <div class="swap"><div class="t">Repeated failed verification<small>Ban after 5</small></div>
+     <div class="tg${(ADM.sw&&ADM.sw.ban_failed_verify)?" on":""}" data-setting="ban_failed_verify"></div></div></div>`)}
+   ${G("blacklist",`<div class="card"><h3>Blacklist</h3><p class="sub">User IDs, phone numbers and UPI references.</p>
+     <div class="field" style="margin-top:10px"><div style="display:flex;gap:7px">
+       <input class="inp" id="bl-in" placeholder="ID, phone or UPI ref"><button class="btn sm" style="flex:0 0 auto" id="blblock">Block</button></div></div>
+     <div class="kv"><span>Blocked entries</span><b>42</b></div></div>`)}
+   ${G("encrypt",`<div class="card"><div class="swap" style="padding-top:0"><div class="t">Encrypt sessions at rest<small>A leaked database file stays useless</small></div>
+     <div class="tg${FEAT.encrypt?" on":""}" data-feat="encrypt"></div></div>
+     <div class="kv"><span>Key status</span><b style="color:var(--ok)">Loaded from env</b></div></div>`)}`;
+}
+
+function aStock(){
+  return `<div class="card"><h3>Upload stock</h3><p class="sub">Paste sessions or upload a file — one per line.</p>
+<div class="field" style="margin-top:12px"><label>Paste accounts — one per line</label>
+      <textarea class="inp" id="stpaste" rows="4"
+        placeholder="India | +91 | 35 | session&#10;Kenya | +254 | 77 | session"></textarea></div>
+    <div class="btnrow"><button class="btn cta" id="stsave">Import</button>
+      <label class="btn soft" style="display:flex;align-items:center;justify-content:center;cursor:pointer">
+        Upload .txt<input type="file" id="stfile" accept=".txt,.csv" hidden></label></div>
+    <p class="sub" id="stmsg" style="margin:8px 0 0;font-size:.72rem"></p>
+    ${G("bulkUpload",`<div class="steps" style="margin-top:12px">
+      <div class="step on"><i>1</i>${ADM.analytics.stock_total} available now</div>
+      <div class="step on"><i>2</i>${ADM.analytics.sold_total} sold so far</div>
+      <div class="step"><i>3</i>Add more from the bot: Admin → Stock</div></div>`)}
+    ${G("dupDetect",`<p class="sub" style="margin:10px 0 0;font-size:.7rem">Duplicate phones and sessions are rejected automatically.</p>`)}
+    ${G("healthCheck",`<div class="swap"><div class="t">Validate before selling<small>Check the session is alive at purchase time</small></div>
+     <div class="tg${FEAT.healthCheck?" on":""}" data-feat="healthCheck"></div></div>`)}</div>
+   ${G("lowStock",`<div class="card"><h3>Low-stock alerts</h3><p class="sub">Per-country threshold — ping when it drops below.</p>
+     ${(ADM.stock.length?ADM.stock:STOCK).slice(0,6).map(s=>`<div class="kv"><span>${s.f} ${esc(s.c)} · ${s.qty||0} left</span>
+       <b><input class="inp" style="height:30px;width:64px;text-align:center;font-size:.74rem" value="${s.low||10}"></b></div>`).join("")
+       ||'<p class="sub" style="margin:0">No stock yet.</p>'}</div>`)}
+   ${G("sellHours",`<div class="card"><h3>Selling hours</h3><p class="sub">Countries hide themselves outside the window.</p>
+     <div class="field" style="margin-top:8px"><label>Open</label><input class="inp" value="09:00"></div>
+     <div class="field"><label>Close</label><input class="inp" value="02:00"></div></div>`)}
+   ${G("dynPrice",`<div class="card"><h3>Dynamic pricing</h3>
+     <div class="swap" style="padding-top:0"><div class="t">Raise price when stock is low<small>+10% under 20 units</small></div>
+     <div class="tg${FEAT.dynPrice?" on":""}" data-feat="dynPrice"></div></div>
+     <div class="swap"><div class="t">Night discount<small>−5% between 00:00 and 06:00</small></div>
+     <div class="tg${(ADM.sw&&ADM.sw.night_discount)?" on":""}" data-setting="night_discount"></div></div></div>`)}
+   ${G("bulkDisc",`<div class="card"><h3>Bulk discounts</h3>
+     <p class="sub">Percent off when the buyer takes several at once.</p>
+     <div class="field" style="margin-top:10px"><label>5 or more (%)</label>
+       <input class="inp" data-price="bulk_5" value="${ADM.pricing?ADM.pricing.bulk_5:5}"></div>
+     <div class="field"><label>10 or more (%)</label>
+       <input class="inp" data-price="bulk_10" value="${ADM.pricing?ADM.pricing.bulk_10:10}"></div>
+     <div class="field"><label>25 or more (%)</label>
+       <input class="inp" data-price="bulk_25" value="${ADM.pricing?ADM.pricing.bulk_25:15}"></div>
+     <div class="field"><label>Default price for new stock</label>
+       <input class="inp" data-price="default_price" value="${ADM.pricing?ADM.pricing.default_price:35}"></div>
+     </div>`)}
+   ${G("variants",`<div class="card"><h3>Variants</h3><p class="sub">Priced separately on every country.</p>
+     <div class="kv"><span>2FA enabled</span><b>+₹5</b></div>
+     <div class="kv"><span>With mail</span><b>+₹8</b></div>
+     <div class="kv"><span>Spam-free guarantee</span><b>+₹4</b></div></div>`)}
+   <div class="sec"><h2>Inventory</h2><a class="sub">tap a price to change it</a></div>
+   ${STOCK.map(s=>`<div class="card tight" style="display:flex;align-items:center;gap:10px">
+     <div class="flag">${s.f}</div>
+     <div style="flex:1;min-width:0"><b style="font-size:.83rem">${s.c}</b><br>
+       <small style="color:var(--tx2);font-size:.69rem">${s.qty} available</small></div>
+     <input class="inp" data-cprice="${esc(s.c)}" value="${s.price}" style="height:32px;width:78px;text-align:center;font-size:.76rem">
+     
+     <button class="btn xs bad" data-misc="clearstock" data-misc-value="${esc(s.c)}">Clear</button></div>`).join("")}`;
+}
+function aOrders(){
+  return `<div class="sec"><h2>Recent Orders</h2><a data-admin-act="export">Export</a></div>
+   ${ADM.orders.length?ADM.orders.map(o=>`<div class="card tight" style="display:flex;align-items:center;gap:10px">
+     <div class="flag">${o.f}</div><div style="flex:1;min-width:0"><b style="font-size:.82rem">${esc(o.id)}</b><br>
+     <small style="color:var(--tx2);font-size:.69rem">${esc(o.user)} · ${money(o.price)} · ${esc(o.when)}</small></div>
+     <span class="pill ${o.st==="Delivered"?"on":"off"}">${esc(o.st)}</span></div>`).join("")
+     :'<div class="card tight"><p class="sub" style="margin:0">No orders yet.</p></div>'}
+   ${G("dispute",`<div class="sec"><h2>Disputes</h2></div>
+     ${ADM.disputes.length?ADM.disputes.map(d=>`<div class="card tight" style="display:flex;align-items:center;gap:10px">
+         <div class="flag">${ic("shield")}</div>
+         <div style="flex:1;min-width:0"><b style="font-size:.8rem">${esc(d.id)} · ${esc(d.user)}</b><br><small style="color:var(--tx2);font-size:.68rem">${esc(d.reason)}</small></div>
+         <span class="pill ${d.status==="Open"?"hot":"on"}">${esc(d.status)}</span></div>`).join("")
+       :'<div class="card tight"><p class="sub" style="margin:0">No disputes.</p></div>'}`)}
+   ${G("warranty",`<div class="sec"><h2>Replacement claims</h2></div>
+     <div class="card tight" style="display:flex;align-items:center;gap:10px">
+       <div class="flag">${ic("shield")}</div>
+       <div style="flex:1;min-width:0"><b style="font-size:.8rem">2 claims inside warranty</b><br>
+         <small style="color:var(--tx2);font-size:.68rem">Auto-replaced from stock</small></div>
+       </div>`)}
+   
+   ${G("reviews",`<div class="sec"><h2>Reviews</h2></div>
+     ${(ADM.reviews.length?ADM.reviews.map(r=>[r.user,r.c,r.stars,r.text]):[])
+       .map(([u,c,r,t])=>`<div class="card tight" style="display:flex;align-items:center;gap:10px">
+         <div class="flag">${ic("star")}</div>
+         <div style="flex:1;min-width:0"><b style="font-size:.8rem">${u} · ${c} · ${r}</b><br>
+           <small style="color:var(--tx2);font-size:.68rem">${t}</small></div>
+         <button class="btn xs soft" data-rev="${r.id}">Hide</button></div>`).join("")}`)}`;
+}
+function aUsers(){
+  return `<div class="field"><input class="inp" placeholder="Search by ID or username"></div>
+   ${ADM.users.length?ADM.users.map(u=>`<div class="card tight" style="display:flex;align-items:center;gap:10px">
+      <div class="flag">${ic("user")}</div>
+      <div style="flex:1;min-width:0"><b style="font-size:.82rem">${esc(u.name)}</b><br>
+        <small style="color:var(--tx2);font-size:.69rem">${money(u.spent)} spent · ${u.orders} orders · ${money(u.balance)} balance${u.banned?" · banned":""}</small></div>
+      <span class="pill ${u.banned?"off":"on"}">${esc(u.tier)}</span></div>`).join("")
+     :'<div class="card tight"><p class="sub" style="margin:0">No users yet.</p></div>'}
+   ${G("adminRoles",`<div class="sec"><h2>Admin roles</h2></div>
+     <div class="card">
+       ${ADM.admins.length?ADM.admins.map(a=>`<div class="kv"><span><b style="color:var(--tx)">${esc(a.label)}</b> · ${esc(a.perms)}</span><b><span class="pill on">${esc(a.role)}</span></b></div>`).join("")
+         :'<p class="sub" style="margin:0">Only you so far.</p>'}
+       <div class="field" style="margin-top:10px"><div style="display:flex;gap:7px">
+         <input class="inp" placeholder="@username"><select class="inp" style="width:auto"><option>Manager</option><option>Support</option></select>
+         <button class="btn sm" style="flex:0 0 auto" id="adminadd">Add</button></div></div></div>`)}
+   ${G("buyerBadge",`<div class="card"><h3>Verified buyer badge</h3>
+     <div class="field" style="margin-top:8px"><label>Orders required</label><input class="inp" value="5"></div>
+     <div class="kv"><span>Verified users</span><b>84</b></div></div>`)}
+   ${G("multiAcc",`<div class="card tight" style="display:flex;align-items:center;gap:10px">
+     <span class="pill hot">7 flagged</span>
+     <div style="flex:1;min-width:0;font-size:.74rem;color:var(--tx2)">Possible multi-accounts this week</div>
+     <button class="btn xs soft" data-a-go="security">Review</button></div>`)}`;
+}
+function aSettings(){
+  return `<div class="card"><h3>Store</h3><p class="sub">Everything lives in the database — no code edits, no restart.</p>
+    <div class="field" style="margin-top:12px"><label>Store name</label>
+      <input class="inp" data-set="store_name" value="${esc(CMS.storeName||CFG.name)}"></div>
+    <div class="field"><label>Tagline</label>
+      <input class="inp" data-set="store_tagline" value="${esc(CMS.storeTag||CFG.tag)}"></div>
+    <div class="field"><label>Tagline</label><input class="inp" value="${CFG.tag}"></div>
+    <div class="field"><label>Support contact</label><input class="inp" placeholder="@your_support"></div>
+    </div>
+   <div class="card"><h3>Toggles</h3>
+    <div class="swap"><div class="t">Force join<small>Require channel membership</small></div>
+     <div class="tg${(ADM.sw&&ADM.sw.force_sub)?" on":""}" data-setting="force_sub"></div></div>
+    <div class="swap"><div class="t">Maintenance mode<small>Freeze the store</small></div>
+     <div class="tg${(ADM.sw&&ADM.sw.maintenance)?" on":""}" data-setting="maintenance"></div></div>
+    <div class="swap"><div class="t">Auto refunds<small>Refund failed logins</small></div>
+     <div class="tg${FEAT.autoRefund?" on":""}" data-feat="autoRefund"></div></div>
+    <div class="swap"><div class="t">Referral program<small>1% of invited deposits</small></div>
+     <div class="tg${FEAT.refDash?" on":""}" data-feat="refDash"></div></div></div>
+   ${G("i18n",`<div class="card"><h3>Languages</h3><p class="sub">Users pick their own; every string is translated.</p>
+     <div class="field"><label>Default language</label>
+      <select class="inp" data-setsel="lang_default">
+        <option value="en" ${(ADM.settings&&ADM.settings.lang==="en")?"selected":""}>English</option>
+        <option value="hi" ${(ADM.settings&&ADM.settings.lang==="hi")?"selected":""}>हिन्दी</option>
+      </select></div></div>`)}
+   ${G("slashCmds",`<div class="card"><h3>Slash commands</h3><p class="sub">Registered in Telegram's command menu.</p>
+     ${[["/start","Open the store"],["/buy","Jump to stock"],["/balance","Show wallet"],["/orders","My orders"],["/support","Contact support"]]
+       .map(([c,d])=>`<div class="kv"><span><b style="color:var(--tx)">${c}</b></span><b style="font-weight:500;font-size:.74rem">${d}</b></div>`).join("")}
+     <button class="btn block soft" style="margin-top:10px" data-admin-act="sync">Sync Commands</button></div>`)}
+   ${G("autoBackup",`<div class="card"><h3>Auto-backup</h3><p class="sub">Database to a private channel on a schedule.</p>
+     <div class="field" style="margin-top:8px"><label>Every (hours)</label><input class="inp" value="6"></div>
+     <div class="kv"><span>Last backup</span><b>42 min ago</b></div>
+     <div class="btnrow" style="margin-top:10px"><button class="btn" data-admin-act="backup">Back Up Now</button>
+       <button class="btn ghost" data-admin-act="restore">Restore</button></div></div>`)}
+   ${G("auditLog",`<div class="card"><h3>Audit log</h3><p class="sub">Every admin action, with undo.</p>
+     ${((ADM.audit&&ADM.audit.length)?ADM.audit.map(a=>[a.who,(a.what+" "+a.detail).trim(),a.when]):[])
+       .map(([u,a,t])=>`<div class="kv"><span><b style="color:var(--tx)">${u}</b> ${a}</span>
+         <b>${t} </b></div>`).join("")}</div>`)}
+   ${G("sandbox",`<div class="card"><div class="swap" style="padding-top:0"><div class="t">Sandbox / test mode<small>Fake money, no real delivery</small></div>
+     <div class="tg${(ADM.sw&&ADM.sw.sandbox)?" on":""}" data-setting="sandbox"></div></div></div>`)}
+   ${G("encrypt",`<div class="card tight" style="display:flex;align-items:center;gap:10px">
+     <span class="pill on"><i class="dot"></i>Encrypted</span>
+     <div style="flex:1;min-width:0;font-size:.74rem;color:var(--tx2)">Sessions are encrypted at rest</div>
+     <button class="btn xs soft" data-a-go="security">Keys</button></div>`)}
+   <div class="card"><h3>Danger zone</h3><p class="sub">Irreversible. Ask twice.</p>
+    <div class="btnrow" style="margin-top:12px"><button class="btn xs soft" data-admin-act="backup">Backup</button>
+    <button class="btn bad hold" data-done="Database reset (demo)"><span class="fill"></span>Hold to Reset DB</button></div></div>`;
+}
+
+function bindAdmin(){
+  bindCommon();
+  document.querySelectorAll("[data-feat]").forEach(t=>t.onclick=()=>{
+    const k=t.dataset.feat;FEAT[k]=!FEAT[k];t.classList.toggle("on",FEAT[k]);
+    push("/api/admin/feature",{key:k,on:FEAT[k]});
+    const c=document.getElementById("fcount");
+    if(c)c.textContent=Object.values(FEAT).filter(Boolean).length+" of "+Object.keys(FEAT).length;
+    applyFeatures();
+    const card=t.closest(".fcard"), nameEl=card?card.querySelector("b"):null;
+    const label=nameEl?nameEl.textContent:k.replace(/([A-Z])/g," $1").toLowerCase();
+    toast(label+(FEAT[k]?" enabled":" hidden"));});
+  const fq=document.getElementById("fq");
+  if(fq)fq.oninput=()=>{const q=fq.value.trim().toLowerCase();
+    document.querySelectorAll(".frow").forEach(r=>r.classList.toggle("hide",!!q&&!r.dataset.f.includes(q)));
+    document.querySelectorAll(".fgrp").forEach(g=>g.classList.toggle("hide",!g.querySelector(".frow:not(.hide)")));};
+  const setAll=v=>{Object.keys(FEAT).forEach(k=>FEAT[k]=v);applyFeatures();renderAdmin();toast(v?"All features enabled":"All features hidden");};
+  const fa=document.getElementById("fall"),fn=document.getElementById("fnone"),fr=document.getElementById("freset");
+  if(fa)fa.onclick=()=>setAll(true);
+  if(fn)fn.onclick=()=>setAll(false);
+  if(fr)fr.onclick=()=>{Object.assign(FEAT,FEAT0);applyFeatures();renderAdmin();toast("Features reset");};
+  const stmsg=m=>{const e=document.getElementById("stmsg");if(e)e.textContent=m;};
+  async function importStock(text){
+    if(!text.trim()){toast("Paste some lines first");return;}
+    if(!LIVE){toast("Preview only");return;}
+    stmsg("Importing…");
+    const r=await apiTry("/api/admin/stock",{text:text});
+    if(!r){stmsg("");return;}
+    const note=r.added+" imported"+(r.skipped&&r.skipped.length?(" · "+r.skipped.length+" skipped"):"");
+    toast(r.added+" accounts added");
+    const box=document.getElementById("stpaste");if(box)box.value="";
+    await refresh();
+    stmsg(note);
+  }
+  const stsave=document.getElementById("stsave");
+  if(stsave)stsave.onclick=()=>importStock((document.getElementById("stpaste")||{}).value||"");
+  const stfile=document.getElementById("stfile");
+  if(stfile)stfile.onchange=()=>{
+    const f=stfile.files&&stfile.files[0];if(!f)return;
+    const rd=new FileReader();
+    rd.onload=()=>{const box=document.getElementById("stpaste");
+      if(box)box.value=rd.result;stmsg(f.name+" loaded — press Import");};
+    rd.readAsText(f);
+  };
+  const bl=document.getElementById("blblock");
+  if(bl)bl.onclick=async()=>{
+    const i=document.getElementById("bl-in");
+    const v=i?(i.value||"").trim():"";
+    if(!v){toast("Type an id, phone or UPI reference");if(i)i.focus();return;}
+    if(!LIVE){toast("Preview only");return;}
+    const r=await apiTry("/api/admin/blacklist",{action:"add",value:v});
+    if(!r)return;
+    i.value="";toast("Blocked "+v);await refresh();
+  };
+  document.querySelectorAll("[data-bl-del]").forEach(b=>b.onclick=async()=>{
+    const r=await apiTry("/api/admin/blacklist",{action:"del",id:+b.dataset.blDel});
+    if(r){toast("Unblocked");await refresh();}
+  });
+  document.querySelectorAll("[data-misc]").forEach(b=>b.onclick=async()=>{
+    if(!LIVE){toast("Preview only");return;}
+    const what=b.dataset.misc, val=b.dataset.miscValue||"";
+    const lbl=b.textContent;b.disabled=true;b.textContent="…";
+    const r=await apiTry("/api/admin/misc",{what:what,value:val});
+    b.disabled=false;b.textContent=lbl;
+    if(!r)return;
+    if(r.lines)sheet(`<h3 style="margin:0 0 4px;font-size:1rem">Channel check</h3>
+      <p class="sub" style="white-space:pre-line">${esc(r.lines.join("\n"))}</p>
+      <button class="btn block" style="margin-top:12px" data-close>Close</button>`);
+    else if(what==="logtest")toast("Test message sent to the log channel");
+    else if(what==="clearstock")toast(r.removed+" removed");
+    else toast("Done");
+    await refresh();
+  });
+  const upiadd=document.getElementById("upiadd");
+  if(upiadd)upiadd.onclick=async()=>{
+    const i=upiadd.closest("div").querySelector("input");
+    const v=i?(i.value||"").trim():"";
+    if(!v){toast("Paste the extra UPI handle");return;}
+    const cur=(ADM.pay&&ADM.pay.extra)||"";
+    const r=await apiTry("/api/admin/setting",{key:"upi_extra",value:cur?(cur+","+v):v});
+    if(r){i.value="";toast("Handle added");await refresh();}
+  };
+  const adminadd=document.getElementById("adminadd");
+  if(adminadd)adminadd.onclick=async()=>{
+    const i=adminadd.closest("div").querySelector("input");
+    const v=i?(i.value||"").trim().replace(/^@/,""):"";
+    if(!v){toast("Send the numeric user id");return;}
+    const r=await apiTry("/api/admin/misc",{what:"addadmin",value:v});
+    if(r){i.value="";toast("Admin added with no powers — grant them in the bot");await refresh();}
+  };
+  const prize=document.getElementById("prizesave");
+  if(prize)prize.onclick=async()=>{
+    const i=prize.closest("div").querySelector("input");
+    const r=await apiTry("/api/admin/setting",{key:"leaderboard_prize",value:(i&&i.value)||"0"});
+    if(r)toast("Prize saved");
+  };
+  const cpadd=document.getElementById("cpadd");
+  if(cpadd)cpadd.onclick=async()=>{
+    const code=((document.getElementById("cpcode")||{}).value||"").trim();
+    const pct=((document.getElementById("cppct")||{}).value||"").trim();
+    if(!code||!pct){toast("Code and percent, please");return;}
+    if(!LIVE){toast("Preview only");return;}
+    const r=await apiTry("/api/admin/coupon",{code:code,percent:pct});
+    if(!r)return;
+    const a1=document.getElementById("cpcode"),a2=document.getElementById("cppct");
+    if(a1)a1.value="";if(a2)a2.value="";
+    toast("Coupon "+code.toUpperCase()+" is live");await refresh();
+  };
+  const fg=document.getElementById("flashgo");
+  if(fg)fg.onclick=async()=>{
+    const card=fg.closest(".card")||document;
+    const ins=card.querySelectorAll("input");
+    const pct=((ins[0]&&ins[0].value)||"20"), hrs=((ins[1]&&ins[1].value)||"5");
+    if(!LIVE){toast("Preview only");return;}
+    const r=await apiTry("/api/admin/flash",{percent:pct,hours:hrs});
+    if(r){toast("Flash sale live — "+pct+"% for "+hrs+"h");await refresh();}
+  };
+  const bc=document.getElementById("bcgo");
+  if(bc)bc.onclick=async()=>{
+    const card=bc.closest(".card")||document;
+    const ta=card.querySelector("textarea");
+    const text=((ta&&ta.value)||"").trim();
+    if(!text){toast("Write the message first");if(ta)ta.focus();return;}
+    if(!LIVE){toast("Preview only");return;}
+    bc.disabled=true;bc.textContent="Sending…";
+    const r=await apiTry("/api/admin/broadcast",{text:text});
+    bc.disabled=false;bc.textContent="Send Broadcast";
+    if(r){toast("Sent to "+r.sent+" people");if(ta)ta.value="";}
+  };
+  document.querySelectorAll("[data-dep-ok]").forEach(b=>b.onclick=async()=>{
+    const id=b.dataset.depOk;
+    if(!id){toast("Nothing to approve");return;}
+    const r=await apiTry("/api/admin/deposit",{id:+id,action:"approve"});
+    if(r){toast("Credited");await refresh();}
+  });
+  document.querySelectorAll("[data-rev]").forEach(b=>b.onclick=async()=>{
+    const r=await apiTry("/api/admin/review",{id:+b.dataset.rev});
+    if(r){toast("Updated");await refresh();}
+  });
+  document.querySelectorAll("[data-setting]").forEach(t=>{
+    t.onclick=async()=>{
+      const key=t.dataset.setting, on=!t.classList.contains("on");
+      t.classList.toggle("on",on);
+      if(!LIVE){toast(on?"On":"Off");return;}
+      const r=await apiTry("/api/admin/setting",{key:key,value:on?"1":"0"});
+      if(!r){t.classList.toggle("on",!on);return;}
+      ADM.sw=ADM.sw||{};ADM.sw[key]=on;
+      toast(key.replace(/_/g," ")+(on?" on":" off"));
+    };
+  });
+  document.querySelectorAll("[data-admin-act]").forEach(b=>{
+    b.onclick=async()=>{
+      const act=b.dataset.adminAct;
+      if(!LIVE){toast("Preview only");return;}
+      const label=b.textContent;b.disabled=true;b.textContent="Working…";
+      let r=null;
+      if(act==="backup")      r=await apiTry("/api/admin/backup",{});
+      else if(act==="digest") r=await apiTry("/api/admin/digest",{});
+      else if(act==="export") r=await apiTry("/api/admin/export",{});
+      else if(act==="sync")   r=await apiTry("/api/admin/sync",{});
+      b.disabled=false;b.textContent=label;
+      if(!r)return;
+      if(act==="backup")toast("Database sent to you in chat");
+      if(act==="digest")toast("Digest sent to the admins");
+      if(act==="export")toast(r.rows+" orders sent as CSV");
+      if(act==="sync")toast("Commands synced with Telegram");
+      await refresh();
+    };
+  });
+  document.querySelectorAll("[data-price]").forEach(inp=>{
+    inp.onchange=async()=>{
+      if(!LIVE){toast("Preview only");return;}
+      const r=await apiTry("/api/admin/pricing",{key:inp.dataset.price,value:inp.value});
+      if(r){toast("Pricing updated");await refresh();}
+    };
+  });
+  document.querySelectorAll("[data-cprice]").forEach(inp=>{
+    inp.onchange=async()=>{
+      if(!LIVE){toast("Preview only");return;}
+      const r=await apiTry("/api/admin/pricing",{country:inp.dataset.cprice,price:inp.value});
+      if(r){toast(inp.dataset.cprice+" now "+money(inp.value));await refresh();}
+    };
+  });
+  document.querySelectorAll("[data-qa]").forEach(b=>b.onclick=()=>{
+    const what=b.dataset.qa;
+    const go=(tab,msg)=>{
+      const t=document.querySelector(`#asub button[data-a="${tab}"]`);
+      if(t){t.click();toast(msg);}else toast(msg);
+    };
+    if(what==="broadcast")return go("market","Compose the broadcast from the bot: /admin → Marketing");
+    if(what==="stock")return go("stock","Add stock from the bot: /admin → Stock → Add stock");
+    if(what==="flash")return go("market","Flash sale lives here");
+    if(what==="backup")return toast("Backups are sent to your log channel — /admin → Settings");
+  });
+  document.querySelectorAll("[data-set]").forEach(inp=>{
+    inp.onchange=async()=>{
+      const key=inp.dataset.set, val=inp.value;
+      if(!LIVE){toast("Preview only");return;}
+      const r=await apiTry("/api/admin/setting",{key:key,value:val});
+      if(r){toast(key.replace(/_/g," ")+" saved");await refresh();}
+    };
+  });
+  document.querySelectorAll("[data-cms]").forEach(t=>{
+    t.oninput=()=>{CMS[t.dataset.cms]=t.value;applyCMS();
+      clearTimeout(t._sv);t._sv=setTimeout(()=>push("/api/admin/content",{key:t.dataset.cms,value:t.value}),500);
+      t.closest(".cmsrow").dataset.f=(t.closest(".cmsrow").querySelector("label").textContent+" "+t.value).toLowerCase();};});
+  const cq=document.getElementById("cq");
+  if(cq)cq.oninput=()=>{const q=cq.value.trim().toLowerCase();
+    document.querySelectorAll(".cmsrow").forEach(r=>r.classList.toggle("hide",!!q&&!r.dataset.f.includes(q)));
+    document.querySelectorAll(".cmsgrp").forEach(g=>g.classList.toggle("hide",!g.querySelector(".cmsrow:not(.hide)")));};
+  const cr=document.getElementById("cmsreset");
+  if(cr)cr.onclick=()=>{Object.assign(CMS,CMS0);applyCMS();renderAdmin();toast("Text reset to defaults");};
+  const add=document.getElementById("ch-add");
+  if(add)add.onclick=async()=>{
+    const i=document.getElementById("ch-in"),v=(i.value||"").trim();
+    if(!v){toast("Paste a channel link first");i.focus();return}
+    const req=document.getElementById("ch-type").value==="1";
+    if(LIVE){
+      add.disabled=true;
+      const r=await apiTry("/api/admin/channel",{action:"add",handle:v,required:req});
+      add.disabled=false;
+      if(!r)return;
+      i.value="";await refresh();toast("Channel saved — the bot uses it now");return;
+    }
+    CHANNELS.push({id:Date.now(),name:v.replace(/^https?:\/\/t\.me\//,"@").slice(0,26),handle:v,req:req,on:true,members:"—"});
+    i.value="";renderAdmin();toast("Channel added");};
+  const lgadd=document.getElementById("lg-add");
+  if(lgadd)lgadd.onclick=async()=>{
+    const i=document.getElementById("lg-in"),v=(i.value||"").trim();
+    if(!v){toast("Paste a log channel first");i.focus();return}
+    if(LIVE){
+      lgadd.disabled=true;
+      const r=await apiTry("/api/admin/channel",{action:"add",handle:v,log:true});
+      lgadd.disabled=false;
+      if(!r)return;
+      i.value="";await refresh();toast("Log channel saved");return;
+    }
+    LOGCH.push({id:Date.now(),name:v.replace(/^https?:\/\/t\.me\//,"@").slice(0,24),handle:v,primary:LOGCH.length===0,on:true});
+    i.value="";renderAdmin();toast("Log channel added");};
+  document.querySelectorAll("[data-chdel]").forEach(b=>b.onclick=async()=>{
+    if(LIVE){const r=await apiTry("/api/admin/channel",{action:"del",id:+b.dataset.chdel});
+      if(r){await refresh();toast("Channel removed");}return;}
+    CHANNELS=CHANNELS.filter(c=>c.id!=b.dataset.chdel);renderAdmin();toast("Channel removed")});
+  document.querySelectorAll("[data-chreq]").forEach(b=>b.onclick=async()=>{
+    if(LIVE){const r=await apiTry("/api/admin/channel",{action:"required",id:+b.dataset.chreq});
+      if(r){await refresh();toast("Updated");}return;}
+    const c=CHANNELS.find(x=>x.id==b.dataset.chreq);c.req=!c.req;renderAdmin();toast(c.req?"Now required":"Now optional")});
+  document.querySelectorAll("[data-chon]").forEach(b=>b.onclick=async()=>{
+    if(LIVE){const r=await apiTry("/api/admin/channel",{action:"toggle",id:+b.dataset.chon});
+      if(r){await refresh();toast("Updated");}return;}
+    const c=CHANNELS.find(x=>x.id==b.dataset.chon);c.on=!c.on;renderAdmin();toast(c.on?"Channel enabled":"Channel paused")});
+  document.querySelectorAll("[data-lgdel]").forEach(b=>b.onclick=()=>{
+    const wasP=LOGCH.find(l=>l.id==b.dataset.lgdel)?.primary;
+    LOGCH=LOGCH.filter(l=>l.id!=b.dataset.lgdel);
+    if(wasP&&LOGCH[0])LOGCH[0].primary=true;renderAdmin();toast("Log channel removed")});
+  document.querySelectorAll("[data-lgstar]").forEach(b=>b.onclick=()=>{
+    LOGCH.forEach(l=>l.primary=(l.id==b.dataset.lgstar));renderAdmin();toast("Preferred log channel set")});
+  document.querySelectorAll("[data-lgon]").forEach(b=>b.onclick=()=>{const l=LOGCH.find(x=>x.id==b.dataset.lgon);l.on=!l.on;renderAdmin();toast(l.on?"Channel on":"Channel muted")});
+  document.querySelectorAll("[data-evon]").forEach(b=>b.onclick=()=>{const e=EVENTS[+b.dataset.evon];e.on=!e.on;renderAdmin()});
+  document.querySelectorAll("[data-evch]").forEach(s=>s.onchange=()=>{EVENTS[+s.dataset.evch].ch=+s.value;toast("Routing updated")});
+  const all=document.querySelector("[data-ev-all]");
+  if(all)all.onclick=()=>{const t=!EVENTS.every(e=>e.on);EVENTS.forEach(e=>e.on=t);renderAdmin();toast(t?"All events on":"All events off")};
+  const m=document.querySelector("[data-master]");
+  if(m)m.onclick=()=>{LOGS_MASTER=!LOGS_MASTER;renderAdmin();toast(LOGS_MASTER?"Logging enabled":"All logging disabled")};
+  document.querySelectorAll("[data-a-go]").forEach(b=>b.onclick=()=>{
+    document.querySelectorAll("#asub button").forEach(x=>x.classList.toggle("on",x.dataset.a===b.dataset.aGo));
+    ATAB=b.dataset.aGo;renderAdmin();window.scrollTo(0,0);});
+  document.querySelectorAll("[data-tg]").forEach(t=>t.onclick=()=>t.classList.toggle("on"));
+  document.querySelectorAll("[data-setsel]").forEach(sel=>sel.onchange=async()=>{
+    if(!LIVE){toast("Preview only");return;}
+    const r=await apiTry("/api/admin/setting",{key:sel.dataset.setsel,value:sel.value});
+    if(r)toast("Saved");
+  });
+}
+
+const _cc=document.getElementById("cartchip");
+if(_cc)_cc.onclick=cartSheet;
+render();renderAdmin();applyFeatures();
+
+/* ── live data: everything below comes from the bot database when served by the bot ── */
+/* LIVE / ME / TG / INIT are declared at the very top of this script */
+async function api(path,body){
+  const o={headers:{"Content-Type":"application/json","X-Init-Data":INIT,
+    "X-Telegram-Init-Data":INIT,"X-App-Key":APPKEY}};
+  if(body!==undefined){o.method="POST";o.body=JSON.stringify(body);}
+  const r=await fetch(path,o);
+  let d=null;try{d=await r.json();}catch(err){}
+  if(!r.ok){const e=new Error((d&&d.error)||(path+" "+r.status));e.status=r.status;e.data=d;throw e;}
+  return d;
+}
+function adminAllowed(){return !LIVE || !!(ME&&ME.admin);}
+function applyState(d){
+  /* every list is replaced, even when empty — a new shop must never show demo data */
+  if(d.features)Object.keys(d.features).forEach(k=>{if(k in FEAT)FEAT[k]=!!d.features[k];});
+  if(d.content)Object.keys(d.content).forEach(k=>{if(k in CMS&&d.content[k]!=null)CMS[k]=d.content[k];});
+  if(Array.isArray(d.stock)){STOCK.length=0;d.stock.forEach(x=>STOCK.push(x));FILTERED=STOCK.slice();}
+  if(Array.isArray(d.orders)){ORDERS.length=0;d.orders.forEach(x=>ORDERS.push(x));}
+  if(Array.isArray(d.tx)){TX.length=0;d.tx.forEach(x=>TX.push(x));}
+  if(Array.isArray(d.feed))FEED=d.feed;
+  if(d.earn)EARN=Object.assign({},EARN,d.earn);
+  if(d.prefs)PREFS=Object.assign({},PREFS,d.prefs);
+  if(Array.isArray(d.alerts))window.__alerts=d.alerts;
+  if(d.store){
+    STORE=Object.assign({},STORE,d.store);
+    if(d.store.name)CFG.name=d.store.name;
+    if(d.store.tag)CFG.tag=d.store.tag;
+    document.querySelectorAll("[data-storename]").forEach(e=>e.textContent=CFG.name);
+    document.querySelectorAll("[data-storetag]").forEach(e=>e.textContent=CFG.tag);
+    document.title=CFG.name;
+  }
+  if(d.adm){
+    ADM=Object.assign({},ADM,d.adm);
+    if(Array.isArray(ADM.channels))
+      CHANNELS=ADM.channels.map(c=>({id:c.id,name:c.name,handle:c.handle||"",
+        req:!!c.required,on:!!c.active,members:"—"}));
+    if(ADM.logs){
+      LOGS_MASTER=!!ADM.logs.master;
+      if(Array.isArray(ADM.logs.channels))
+        LOGCH=ADM.logs.channels.map(c=>({id:c.id,name:c.name,handle:"",
+          primary:!!c.primary,on:!!c.active}));
+      if(Array.isArray(ADM.logs.events)&&ADM.logs.events.length)
+        EVENTS=ADM.logs.events.map(e=>({k:e.label,on:!!e.on,ch:(LOGCH[0]||{}).id||1}));
+    }
+  }
+  if(d.ratings)REVIEWS=d.ratings;
+  if(typeof d.balance==="number")BAL=d.balance;
+  if(d.me)ME=d.me;
+  if(d.cart)CART=d.cart;
+  if(d.wishlist)WISH=d.wishlist;
+}
+function showSwitch(on){
+  const sw=document.getElementById("sw");
+  if(sw)sw.style.display=on?"flex":"none";
+}
+var LOCK_TITLE="",LOCK_MSG="";
+function lockedScreen(title,msg){
+  LOCKED=true;LOCK_TITLE=title;LOCK_MSG=msg;
+  showSwitch(false);
+  paintLocked();
+}
+function paintLocked(){
+  const st=document.getElementById("stage");
+  if(st)st.innerHTML='<div class="card" style="margin:18px;text-align:center;padding:22px">'
+    +'<h3 style="margin:0 0 8px">'+LOCK_TITLE+'</h3>'
+    +'<p class="sub" style="margin:0 0 14px">'+LOCK_MSG+'</p>'
+    +'<button class="btn block" onclick="location.reload()">Try again</button></div>';
+  ["tabs","dock"].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display="none";});
+}
+async function apiTry(path,body){
+  try{return await api(path,body);}
+  catch(e){toast(String(e&&e.message||e).slice(0,90));return null;}
+}
+async function refresh(){
+  if(!LIVE)return;
+  try{
+    applyState(await api("/api/state"));
+    applyCMS();applyFeatures();syncBal();render();renderAdmin();
+  }catch(e){}
+}
+async function copyText(t, label){
+  const txt=String(t||"");
+  if(!txt){toast("Nothing to copy");return false;}
+  try{
+    if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(txt);}
+    else{
+      const ta=document.createElement("textarea");
+      ta.value=txt;ta.setAttribute("readonly","");
+      ta.style.cssText="position:fixed;left:-9999px;opacity:0";
+      document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,txt.length);
+      const ok=document.execCommand("copy");document.body.removeChild(ta);
+      if(!ok)throw new Error("copy refused");
+    }
+    toast((label||"Copied")+": "+(txt.length>26?txt.slice(0,26)+"…":txt));
+    return true;
+  }catch(e){
+    sheet(`<h3 style="margin:0 0 4px;font-size:1rem">Copy this</h3>
+      <p class="sub">Your browser blocked the clipboard — select and copy.</p>
+      <textarea class="inp" rows="3" readonly onclick="this.select()">${esc(txt)}</textarea>
+      <button class="btn block" style="margin-top:10px" data-close>Done</button>`);
+    return false;
+  }
+}
+let STORE={upi:"",payee:"",prefix:"PAY",terms:"",support:""};
+let PREFS={restock:true,receipts:true,promos:true,push:true};
+let OFFER="";
+function openPay(link){
+  if(!link)return;
+  try{
+    if(TG&&TG.openLink&&/^https?:/.test(link))TG.openLink(link);
+    else window.location.href=link;
+  }catch(e){window.location.href=link;}
+}
+async function boot(){
+  if(TG){try{TG.ready();TG.expand();}catch(e){}}
+  const inTG=!!((INIT&&INIT.length)||(APPKEY&&APPKEY.length));
+  if(inTG)showSwitch(false);              /* fail closed: no admin strip until proven */
+  if(location.protocol==="file:")return;  /* opened as a plain file — demo gallery */
+  let d;
+  try{
+    d=await api("/api/state");
+  }catch(e){
+    if(e&&e.status===401){
+      let why="",fix="";
+      try{
+        const w=await (await fetch("/api/whoami",{headers:{"X-Init-Data":INIT,
+          "X-Telegram-Init-Data":INIT,"X-App-Key":APPKEY}})).json();
+        const R={missing:["Telegram did not pass your account to this page.",
+                   "Open the bot and tap <b>Open Store</b>, or send <b>/app</b>."],
+                 "bad-format":["The sign-in data arrived damaged.","Close the app and open it again from the bot."],
+                 "no-hash":["The sign-in data arrived incomplete.","Close the app and open it again from the bot."],
+                 "bad-hash":["The signature does not match this bot's token.",
+                   "The page is served by a different bot, or BOT_TOKEN on the server has quotes around it. Send <b>/diag</b> in the bot to compare."],
+                 stale:["That sign-in is older than the allowed window.","Reopen the app from the bot."],
+                 "bad-user":["Your account details could not be read.","Reopen the app from the bot."],
+                 "no-id":["Telegram sent no user id.","Reopen the app from the bot."]};
+        const r=R[w.why]||["The store could not confirm who you are.","Open it again from the bot."];
+        why=r[0]+" <code>("+(w.why||"unknown")+")</code>";
+        fix=r[1];
+      }catch(err){
+        why="The store could not confirm who you are.";
+        fix="Open it again from the bot with the <b>Open Store</b> button.";
+      }
+      lockedScreen("Cannot open the store",why+"<br><br>"+fix);
+    }
+    return;
+  }
+  applyState(d);LIVE=true;
+  showSwitch(!!(ME&&ME.admin));           /* only a verified admin sees it */
+  applyCMS();applyFeatures();syncBal();render();renderAdmin();
+}
+async function push(path,body,okMsg){
+  if(!LIVE)return true;
+  try{const r=await api(path,body);if(okMsg)toast(okMsg);return r;}
+  catch(e){toast("Could not save — check your connection");return false;}
+}
+boot();
+</script>
+</body></html>
